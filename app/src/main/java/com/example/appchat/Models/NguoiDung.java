@@ -24,6 +24,17 @@ public class NguoiDung implements Serializable {
     @SerializedName("Password")
     @Expose
     private String password;
+    @SerializedName("Status")
+    @Expose
+    private boolean status;
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
 
     public String getHoTen() {
         return hoTen;

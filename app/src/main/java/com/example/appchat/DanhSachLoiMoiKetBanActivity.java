@@ -74,6 +74,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         SwipeHelper swipeHelper = new SwipeHelper(DanhSachLoiMoiKetBanActivity.this, recyclerView, 150) {
             @Override
             public void instantiateMyButton(RecyclerView.ViewHolder viewHolder, List<MyButton> buffer) {
+
                 buffer.add(new MyButton(DanhSachLoiMoiKetBanActivity.this, "", 0, R.drawable.ic_baseline_done_24, Color.parseColor("#0000cd"), new MyButtonClickListener() {
                     @Override
                     public void onClick(int pos) {
@@ -102,6 +103,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                         });
                     }
                 }));
+
                 buffer.add(new MyButton(DanhSachLoiMoiKetBanActivity.this,"Từ chối", 0, 0, Color.parseColor("#FF3c30"), new MyButtonClickListener() {
                     @Override
                     public void onClick(int pos) {
@@ -171,7 +173,9 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     if (response.body().getSuccess() == 1) {
                         for (NguoiDung user : response.body().getDanhsach()){
-                            lstUser.add(user);
+                            if (user.isStatus()){
+                                lstUser.add(user);
+                            }
                         }
                         ShowDanhSach();
                     }

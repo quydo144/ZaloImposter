@@ -151,7 +151,9 @@ public class DanhBaFragment extends Fragment {
                 if (response.isSuccessful()) {
                     if (response.body().getSuccess() == 1) {
                         for (NguoiDung user : response.body().getDanhsach()){
-                            lstUser.add(user);
+                            if (user.isStatus()){
+                                lstUser.add(user);
+                            }
                         }
                         ShowDanhSach();
                     }
