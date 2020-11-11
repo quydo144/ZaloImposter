@@ -104,12 +104,12 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                     }
                 }));
 
-                buffer.add(new MyButton(DanhSachLoiMoiKetBanActivity.this,"Từ chối", 0, 0, Color.parseColor("#FF3c30"), new MyButtonClickListener() {
+                buffer.add(new MyButton(DanhSachLoiMoiKetBanActivity.this,"Từ chối", 0,R.drawable.ic_baseline_delete_24, Color.parseColor("#FF3c30"), new MyButtonClickListener() {
                     @Override
                     public void onClick(int pos) {
                         AlertDialog.Builder dialog = new AlertDialog.Builder(DanhSachLoiMoiKetBanActivity.this);
                         dialog.setTitle("Thông báo");
-                        dialog.setMessage("Bạn có muốn lời mời này hay không?");
+                        dialog.setMessage("Bạn có muốn xóa lời mời này không?");
 
                         dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
