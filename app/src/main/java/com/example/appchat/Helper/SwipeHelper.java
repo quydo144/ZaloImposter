@@ -5,9 +5,11 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -31,10 +33,10 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
     private Map<Integer, List<MyButton>> buttonBuffer;
     private Queue<Integer> removeQueue;
 
-    private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener(){
+    private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
-            for (MyButton button : buttonList){
+            for (MyButton button : buttonList) {
                 if (button.onClick(e.getX(), e.getY()))
                     break;
             }
@@ -52,7 +54,7 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
             View swipeItem = swipeViewHolder.itemView;
             Rect rect = new Rect();
             swipeItem.getGlobalVisibleRect(rect);
-            if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_MOVE){
+            if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_MOVE) {
                 if (rect.top < point.y && rect.bottom > point.y)
                     gestureDetector.onTouchEvent(event);
                 else {
@@ -62,11 +64,13 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
                 }
             }
             return false;
-        };
+        }
+
+        ;
     };
 
     private synchronized void recoverSwipedItem() {
-        while (!removeQueue.isEmpty()){
+        while (!removeQueue.isEmpty()) {
             int pos = removeQueue.poll();
             if (pos > -1)
                 recyclerView.getAdapter().notifyItemChanged(pos);
@@ -82,7 +86,7 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
         this.buttonBuffer = new HashMap<>();
         this.buttonWith = buttonWith;
 
-        removeQueue = new LinkedList<Integer>(){
+        removeQueue = new LinkedList<Integer>() {
             @Override
             public boolean add(Integer integer) {
                 if (contains(integer))
@@ -118,7 +122,7 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
         recoverSwipedItem();
     }
 
-    public float getSwipeThreshold(RecyclerView.ViewHolder viewHolder){
+    public float getSwipeThreshold(RecyclerView.ViewHolder viewHolder) {
         return swipeThreshold;
     }
 
@@ -137,33 +141,32 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
         int pos = viewHolder.getAdapterPosition();
         float translationX = dX;
         View itemView = viewHolder.itemView;
-        if (pos < 0){
+        if (pos < 0) {
             swipePosition = pos;
             return;
         }
-        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE){
-            if (dX < 0){
+        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+            if (dX < 0) {
                 List<MyButton> buffer = new ArrayList<>();
-                if (!buttonBuffer.containsKey(pos)){
+                if (!buttonBuffer.containsKey(pos)) {
                     instantiateMyButton(viewHolder, buffer);
                     buttonBuffer.put(pos, buffer);
-                }
-                else {
+                } else {
                     buffer = buttonBuffer.get(pos);
                 }
-                translationX = dX * buffer.size()*buttonWith / itemView.getWidth();
+                translationX = dX * buffer.size() * buttonWith / itemView.getWidth();
                 drawButton(c, itemView, buffer, pos, translationX);
             }
         }
-        super.onChildDraw(c, recyclerView, viewHolder, translationX, dY ,actionState, isCurrentlyActive);
+        super.onChildDraw(c, recyclerView, viewHolder, translationX, dY, actionState, isCurrentlyActive);
     }
 
     private void drawButton(Canvas c, View itemView, List<MyButton> buffer, int pos, float translationX) {
         float right = itemView.getRight();
         float dButtonWidth = -1 * translationX / buffer.size();
-        for (MyButton button :  buffer){
+        for (MyButton button : buffer) {
             float left = right - dButtonWidth;
-            button.onDraw(c , new RectF(left, itemView.getTop(), right, itemView.getBottom()), pos);
+            button.onDraw(c, new RectF(left, itemView.getTop(), right, itemView.getBottom()), pos);
             right = left;
         }
     }

@@ -152,9 +152,13 @@ public class DanhBaFragment extends Fragment {
     }
 
     protected void ShowDanhSach(){
-        adapter = new MyAdapter(view.getContext(), lstUser);
+        adapter = new MyAdapter(view.getContext(), lstUser, false);
         adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
+    }
+
+    public void AcceptBanBe(){
+
     }
 
     protected void GetDanhSachBan(){

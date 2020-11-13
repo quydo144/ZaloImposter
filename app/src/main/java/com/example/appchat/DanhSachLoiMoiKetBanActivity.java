@@ -10,13 +10,12 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.example.appchat.Adapter.MyAdapter;
+import com.example.appchat.Adapter.OnItemClickListener;
 import com.example.appchat.Helper.MyButton;
 import com.example.appchat.Helper.MyButtonClickListener;
 import com.example.appchat.Helper.SwipeHelper;
@@ -49,13 +48,15 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_danh_sach_loi_moi_ket_ban);
 
         Init();
+        ShowDanhSach();
         GetDanhSachCho();
         SwipeHelper();
         SwipeRefresh();
-        Back();;
+        AcceptBanBe();
+        Back();
     }
 
-    protected void Init(){
+    protected void Init() {
         btnBack_LoiMoiKetBan = (ImageButton) findViewById(R.id.btnBack_LoiMoiKetBan);
         preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         recyclerView = (RecyclerView) findViewById(R.id.recycleDanhSachCho);
@@ -65,7 +66,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
     }
 
-    protected void Back(){
+    protected void Back() {
         btnBack_LoiMoiKetBan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,7 +75,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         });
     }
 
-    protected void SwipeRefresh(){
+    protected void SwipeRefresh() {
         refresh_loimoiketban.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -85,41 +86,16 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         });
     }
 
-    protected void SwipeHelper(){
+    protected void AcceptBanBe(){
+
+    }
+
+    protected void SwipeHelper() {
         SwipeHelper swipeHelper = new SwipeHelper(DanhSachLoiMoiKetBanActivity.this, recyclerView, 200) {
             @Override
             public void instantiateMyButton(RecyclerView.ViewHolder viewHolder, List<MyButton> buffer) {
 
-                buffer.add(new MyButton(DanhSachLoiMoiKetBanActivity.this, "", 0, R.drawable.ic_baseline_done_24, Color.parseColor("#0000cd"), new MyButtonClickListener() {
-                    @Override
-                    public void onClick(int pos) {
-                        int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
-                        DataClient client = APIUtils.getData();
-                        BanBe banBe = new BanBe();
-                        banBe.setMaNguoiDung_Mot(MaNguoiDung);
-                        banBe.setMaNguoiDung_Hai(lstUser.get(pos).getMaNguoiDung());
-                        lstUser.remove(pos);
-                        Call<Message> call = client.AcceptRequestFriend(banBe);
-                        call.enqueue(new Callback<Message>() {
-                            @Override
-                            public void onResponse(Call<Message> call, Response<Message> response) {
-                                if (response.isSuccessful()){
-                                    if (response.body().getSuccess() == 1){
-                                        Toast.makeText(DanhSachLoiMoiKetBanActivity.this, "Đồng ý kết bạn thành công", Toast.LENGTH_SHORT).show();
-                                        ShowDanhSach();
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<Message> call, Throwable t) {
-
-                            }
-                        });
-                    }
-                }));
-
-                buffer.add(new MyButton(DanhSachLoiMoiKetBanActivity.this,"Từ chối", 0,R.drawable.ic_baseline_delete_24, Color.parseColor("#FF3c30"), new MyButtonClickListener() {
+                buffer.add(new MyButton(DanhSachLoiMoiKetBanActivity.this, "Từ chối", 0, R.drawable.ic_baseline_delete_24, Color.parseColor("#FF3c30"), new MyButtonClickListener() {
                     @Override
                     public void onClick(int pos) {
                         AlertDialog.Builder dialog = new AlertDialog.Builder(DanhSachLoiMoiKetBanActivity.this);
@@ -129,7 +105,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                         dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
+                                int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
                                 DataClient client = APIUtils.getData();
                                 BanBe banBe = new BanBe();
                                 banBe.setMaNguoiDung_Mot(MaNguoiDung);
@@ -139,8 +115,8 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                                 call.enqueue(new Callback<Message>() {
                                     @Override
                                     public void onResponse(Call<Message> call, Response<Message> response) {
-                                        if (response.isSuccessful()){
-                                            if (response.body().getSuccess() == 1){
+                                        if (response.isSuccessful()) {
+                                            if (response.body().getSuccess() == 1) {
                                                 ShowDanhSach();
                                             }
                                         }
@@ -169,14 +145,40 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         };
     }
 
-    protected void ShowDanhSach(){
-        adapter = new MyAdapter(this, lstUser);
-        adapter.notifyDataSetChanged();
+    protected void ShowDanhSach() {
+        adapter = new MyAdapter(this, lstUser, true);
         recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        adapter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                BanBe banBe = new BanBe();
+                banBe.setMaNguoiDung_Mot(preferences.getInt("MaNguoiDung", 0));
+                banBe.setMaNguoiDung_Hai(lstUser.get(position).getMaNguoiDung());
+                DataClient dataClient = APIUtils.getData();
+                Call<Message> call = dataClient.AcceptRequestFriend(banBe);
+                call.enqueue(new Callback<Message>() {
+                    @Override
+                    public void onResponse(Call<Message> call, Response<Message> response) {
+                        if (response.isSuccessful()){
+                            if (response.body().getSuccess() == 1){
+                                lstUser.remove(lstUser.get(position));
+                                ShowDanhSach();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Message> call, Throwable t) {
+
+                    }
+                });
+            }
+        });
     }
 
-    protected void GetDanhSachCho(){
-        int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
+    protected void GetDanhSachCho() {
+        int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
         DataClient client = APIUtils.getData();
         BanBe banBe = new BanBe();
         banBe.setMaNguoiDung_Mot(MaNguoiDung);
@@ -186,8 +188,8 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
             public void onResponse(Call<Message> call, Response<Message> response) {
                 if (response.isSuccessful()) {
                     if (response.body().getSuccess() == 1) {
-                        for (NguoiDung user : response.body().getDanhsach()){
-                            if (user.isStatus()){
+                        for (NguoiDung user : response.body().getDanhsach()) {
+                            if (user.isStatus()) {
                                 lstUser.add(user);
                             }
                         }

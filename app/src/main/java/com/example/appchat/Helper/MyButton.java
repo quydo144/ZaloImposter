@@ -23,7 +23,7 @@ public class MyButton {
     private Context context;
     private Resources resources;
 
-    public MyButton(Context context ,String text, int textSize, int imageResID, int color, MyButtonClickListener listener) {
+    public MyButton(Context context, String text, int textSize, int imageResID, int color, MyButtonClickListener listener) {
         this.text = text;
         this.imageResID = imageResID;
         this.textSize = textSize;
@@ -33,15 +33,15 @@ public class MyButton {
         resources = context.getResources();
     }
 
-    public boolean onClick(float x, float y){
-        if (clickRegion != null && clickRegion.contains(x, y)){
+    public boolean onClick(float x, float y) {
+        if (clickRegion != null && clickRegion.contains(x, y)) {
             listener.onClick(pos);
             return true;
         }
         return false;
     }
 
-    public void onDraw(Canvas c, RectF rectF, int pos){
+    public void onDraw(Canvas c, RectF rectF, int pos) {
         Paint p = new Paint();
         p.setColor(color);
         c.drawRect(rectF, p);
@@ -54,17 +54,16 @@ public class MyButton {
         p.setTextAlign(Paint.Align.LEFT);
         p.getTextBounds(text, 0, text.length(), r);
 
-        float x=0, y=0;
-        if (imageResID == 0){
-            x = cWidth/2f - r.width()/2f - r.left;
-            y = cHeight/2f + r.height()/2f - r.bottom;
+        float x = 0, y = 0;
+        if (imageResID == 0) {
+            x = cWidth / 2f - r.width() / 2f - r.left;
+            y = cHeight / 2f + r.height() / 2f - r.bottom;
             c.drawText(text, rectF.left + x, rectF.top + y, p);
-        }
-        else {
+        } else {
             Drawable d = ContextCompat.getDrawable(context, imageResID);
             Bitmap bitmap = drawableToBitmap(d);
-            x = (cWidth/2f - r.width()/2f)/1.5f;
-            y = (cHeight/2f + r.height()/2f)/1.5f;
+            x = (cWidth / 2f - r.width() / 2f) / 1.5f;
+            y = (cHeight / 2f + r.height() / 2f) / 1.5f;
             c.drawBitmap(bitmap, (rectF.left + x), (rectF.top + y), p);
         }
         clickRegion = rectF;
@@ -72,12 +71,12 @@ public class MyButton {
     }
 
     private Bitmap drawableToBitmap(Drawable d) {
-        if (d instanceof BitmapDrawable){
+        if (d instanceof BitmapDrawable) {
             return ((BitmapDrawable) d).getBitmap();
         }
         Bitmap bitmap = Bitmap.createBitmap(d.getIntrinsicWidth(), d.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        d.setBounds(0,0,canvas.getWidth(), canvas.getHeight());
+        d.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         d.draw(canvas);
         return bitmap;
     }
