@@ -34,7 +34,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-//        Glide.with(context).load(itemNguoiDung.get(position).getHoTen()).into(holder.nameUser)    get image to show
         holder.nameUser.setText(itemNguoiDung.get(position).getHoTen());
     }
 

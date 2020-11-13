@@ -53,12 +53,17 @@
         </ImageButton>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycleDanhSachCho"
-        android:layout_width="408dp"
-        android:layout_height="674dp"
-        android:layout_marginTop="8dp"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refresh_loimoiketban"
+        android:layout_width="410dp"
+        android:layout_height="688dp"
+        android:layout_marginTop="0dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/container_action_bar"></androidx.recyclerview.widget.RecyclerView>
-
+        app:layout_constraintTop_toBottomOf="@+id/container_action_bar">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycleDanhSachCho"
+            android:layout_marginTop="3dp"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

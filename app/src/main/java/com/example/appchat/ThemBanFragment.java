@@ -133,7 +133,7 @@ public class ThemBanFragment extends Fragment {
                     }
                     else {
                         prgbr_Loading.setVisibility(view.GONE);
-                        Toast.makeText(view.getContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(view.getContext(), "Không tìm thấy", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

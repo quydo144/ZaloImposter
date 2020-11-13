@@ -53,6 +53,7 @@ public class MyButton {
         float cWidth = rectF.width();
         p.setTextAlign(Paint.Align.LEFT);
         p.getTextBounds(text, 0, text.length(), r);
+
         float x=0, y=0;
         if (imageResID == 0){
             x = cWidth/2f - r.width()/2f - r.left;
@@ -62,7 +63,9 @@ public class MyButton {
         else {
             Drawable d = ContextCompat.getDrawable(context, imageResID);
             Bitmap bitmap = drawableToBitmap(d);
-            c.drawBitmap(bitmap, (rectF.left + rectF.right)/2 - 24, (rectF.top + rectF.bottom)/2 - 24, p);
+            x = (cWidth/2f - r.width()/2f)/1.5f;
+            y = (cHeight/2f + r.height()/2f)/1.5f;
+            c.drawBitmap(bitmap, (rectF.left + x), (rectF.top + y), p);
         }
         clickRegion = rectF;
         this.pos = pos;

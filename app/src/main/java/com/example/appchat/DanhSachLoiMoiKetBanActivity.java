@@ -3,6 +3,7 @@ package com.example.appchat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -40,6 +41,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
     LinearLayoutManager layoutManager;
     SharedPreferences preferences;
     ImageButton btnBack_LoiMoiKetBan;
+    SwipeRefreshLayout refresh_loimoiketban;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         Init();
         GetDanhSachCho();
         SwipeHelper();
+        SwipeRefresh();
         Back();;
     }
 
@@ -56,6 +59,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         btnBack_LoiMoiKetBan = (ImageButton) findViewById(R.id.btnBack_LoiMoiKetBan);
         preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         recyclerView = (RecyclerView) findViewById(R.id.recycleDanhSachCho);
+        refresh_loimoiketban = (SwipeRefreshLayout) findViewById(R.id.refresh_loimoiketban);
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -70,8 +74,19 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         });
     }
 
+    protected void SwipeRefresh(){
+        refresh_loimoiketban.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                lstUser.clear();
+                GetDanhSachCho();
+                refresh_loimoiketban.setRefreshing(false);
+            }
+        });
+    }
+
     protected void SwipeHelper(){
-        SwipeHelper swipeHelper = new SwipeHelper(DanhSachLoiMoiKetBanActivity.this, recyclerView, 150) {
+        SwipeHelper swipeHelper = new SwipeHelper(DanhSachLoiMoiKetBanActivity.this, recyclerView, 200) {
             @Override
             public void instantiateMyButton(RecyclerView.ViewHolder viewHolder, List<MyButton> buffer) {
 
@@ -90,7 +105,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                             public void onResponse(Call<Message> call, Response<Message> response) {
                                 if (response.isSuccessful()){
                                     if (response.body().getSuccess() == 1){
-                                        Toast.makeText(DanhSachLoiMoiKetBanActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(DanhSachLoiMoiKetBanActivity.this, "Đồng ý kết bạn thành công", Toast.LENGTH_SHORT).show();
                                         ShowDanhSach();
                                     }
                                 }
@@ -126,7 +141,6 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                                     public void onResponse(Call<Message> call, Response<Message> response) {
                                         if (response.isSuccessful()){
                                             if (response.body().getSuccess() == 1){
-                                                Toast.makeText(DanhSachLoiMoiKetBanActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
                                                 ShowDanhSach();
                                             }
                                         }

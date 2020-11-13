@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.appchat.Adapter.MyAdapter;
 import com.example.appchat.Helper.MyButton;
@@ -46,6 +47,7 @@ public class DanhBaFragment extends Fragment {
     LinearLayoutManager layoutManager;
     SharedPreferences preferences;
     Button btnLoiMoiKetBan;
+    SwipeRefreshLayout refreshLayout;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -54,6 +56,7 @@ public class DanhBaFragment extends Fragment {
         GetDanhSachBan();
         SwipeHelper();
         LoiMoiKetBan_Click();
+        SwipeRefreshLayout();
         lstUser.clear();
         return view;
 
@@ -66,6 +69,18 @@ public class DanhBaFragment extends Fragment {
         layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(layoutManager);
         btnLoiMoiKetBan = (Button) view.findViewById(R.id.btnLoiMoiKetBan);
+        refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_danhba);
+    }
+
+    protected void SwipeRefreshLayout(){
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                lstUser.clear();
+                GetDanhSachBan();
+                refreshLayout.setRefreshing(false);
+            }
+        });
     }
 
     protected void LoiMoiKetBan_Click(){
@@ -79,7 +94,7 @@ public class DanhBaFragment extends Fragment {
     }
 
     protected void SwipeHelper(){
-        SwipeHelper swipeHelper = new SwipeHelper(view.getContext(), recyclerView, 150) {
+        SwipeHelper swipeHelper = new SwipeHelper(view.getContext(), recyclerView, 200) {
             @Override
             public void instantiateMyButton(RecyclerView.ViewHolder viewHolder, List<MyButton> buffer) {
                 buffer.add(new MyButton(view.getContext(),"", 0, R.drawable.ic_baseline_delete_24, Color.parseColor("#FF3c30"), new MyButtonClickListener() {
@@ -104,7 +119,7 @@ public class DanhBaFragment extends Fragment {
                                     public void onResponse(Call<Message> call, Response<Message> response) {
                                         if (response.isSuccessful()){
                                             if (response.body().getSuccess() == 1){
-                                                Toast.makeText(view.getContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(view.getContext(), "Xoá thành công", Toast.LENGTH_SHORT).show();
                                                 ShowDanhSach();
                                             }
                                         }
