@@ -10,7 +10,7 @@
         android:scaleX="0.1"
         android:scaleY="0.1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></ProgressBar>
+        android:layout_height="match_parent"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:visibility="gone"
@@ -32,7 +32,7 @@
             android:layout_marginStart="10dp"
             android:src="@drawable/ic_baseline_account_circle_24"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"></ImageView>
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/txtHoTen_TaiKhoan"
@@ -48,7 +48,7 @@
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/avata_user"
-            app:layout_constraintTop_toTopOf="parent"></TextView>
+            app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TableLayout
@@ -73,7 +73,7 @@
                 android:textColor="#000"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"></TextView>
+                app:layout_constraintStart_toStartOf="parent"/>
 
             <TextView
                 android:id="@+id/txtContent_GioiTinh_TaiKhoan"
@@ -83,7 +83,7 @@
                 android:textColor="#606060"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"></TextView>
+                app:layout_constraintStart_toStartOf="parent"/>
         </TableRow>
 
         <TableRow
@@ -113,7 +113,7 @@
                 android:textColor="#606060"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"></TextView>
+                app:layout_constraintStart_toStartOf="parent"/>
         </TableRow>
 
         <TableRow
@@ -131,7 +131,7 @@
                 android:textColor="#000"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"></TextView>
+                app:layout_constraintStart_toStartOf="parent"/>
 
             <TextView
                 android:id="@+id/txtContent_SoDienThoai_TaiKhoan"
@@ -141,7 +141,7 @@
                 android:textColor="#606060"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"></TextView>
+                app:layout_constraintStart_toStartOf="parent"/>
         </TableRow>
     </TableLayout>
 
@@ -163,6 +163,6 @@
             android:background="@drawable/custom_button_continue"
             android:fontFamily="@font/rubik_medium"
             android:text="Sửa Thông Tin"
-            android:textColor="#fff"></Button>
+            android:textColor="#fff"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

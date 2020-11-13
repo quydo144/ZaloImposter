@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,6 +49,7 @@ public class DanhBaFragment extends Fragment {
     SharedPreferences preferences;
     Button btnLoiMoiKetBan;
     SwipeRefreshLayout refreshLayout;
+    ProgressBar progressBar;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -70,6 +72,7 @@ public class DanhBaFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         btnLoiMoiKetBan = (Button) view.findViewById(R.id.btnLoiMoiKetBan);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_danhba);
+        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
     }
 
     protected void SwipeRefreshLayout(){
@@ -155,6 +158,7 @@ public class DanhBaFragment extends Fragment {
     }
 
     protected void GetDanhSachBan(){
+        progressBar.setVisibility(View.VISIBLE);
         int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
         DataClient client = APIUtils.getData();
         BanBe banBe = new BanBe();
@@ -171,6 +175,7 @@ public class DanhBaFragment extends Fragment {
                             }
                         }
                         ShowDanhSach();
+                        progressBar.setVisibility(View.GONE);
                     }
                 }
             }

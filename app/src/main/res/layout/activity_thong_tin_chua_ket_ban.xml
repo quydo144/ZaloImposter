@@ -33,11 +33,12 @@
             android:id="@+id/txtHoTen_TaiKhoan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="48dp"
+            android:layout_marginStart="10dp"
             android:fontFamily="@font/rubik_medium"
-            android:paddingStart="15dp"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
+            android:paddingStart="15dp"
+            android:layout_marginTop="100dp"
             android:text=""
             android:textAlignment="center"
             android:textColor="#fff"
@@ -45,7 +46,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/avata_user"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.722"></TextView>
+            app:layout_constraintVertical_bias="0.722"/>
 
         <ImageButton
             android:id="@+id/btnBack_ThemBan"
@@ -53,6 +54,7 @@
             android:layout_height="33dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:background="#00000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_left_24" />
@@ -160,6 +162,7 @@
         android:layout_marginTop="40dp"
         android:background="@drawable/custom_button_continue"
         android:text="Nhắn tin"
+        android:textColor="#ffff"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/container_infor_account" />
 
@@ -171,6 +174,7 @@
         android:layout_marginTop="44dp"
         android:background="@drawable/custom_button_continue"
         android:text="Kết bạn"
+        android:textColor="#ffff"
         app:layout_constraintStart_toEndOf="@+id/btnNhanTin"
         app:layout_constraintTop_toBottomOf="@+id/container_infor_account" />
 
