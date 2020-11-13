@@ -66,8 +66,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="630dp">
+        android:layout_height="600dp">
         <androidx.recyclerview.widget.RecyclerView
+            android:overScrollMode="never"
             android:id="@+id/recycleDanhSachBan"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

@@ -51,13 +51,23 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteX="0dp" />
 
+            <ProgressBar
+                android:id="@+id/progressBar_TimBanBe"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:foregroundGravity="center"
+                android:scaleX="0.1"
+                android:scaleY="0.1"
+                android:visibility="gone" />
+
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycleDanhSachCho"
-                android:layout_width="403dp"
-                android:layout_height="463dp"
+                android:id="@+id/recycleDanhSachBanBe_Tim"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="88dp"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/etxtSoDienThoai_TimBanBe" />
 
             <TextView
@@ -80,6 +90,7 @@
                 android:layout_marginTop="32dp"
                 android:background="@drawable/custom_button_continue"
                 android:text="Tìm"
+                android:textColor="#fff"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/etxtSoDienThoai_TimBanBe" />
         </androidx.constraintlayout.widget.ConstraintLayout>

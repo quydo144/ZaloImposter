@@ -7,7 +7,11 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,12 +26,14 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.appchat.Adapter.MyAdapter;
 import com.example.appchat.Models.BanBe;
 import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,20 +49,28 @@ public class ThemBanFragment extends Fragment {
     EditText txtSDT;
     SharedPreferences preferences;
     ProgressBar prgbr_Loading;
+    MyAdapter adapter;
+    LinearLayoutManager layoutManager;
     View view;
     String token, SDT;
     Button btnTim;
     NguoiDung nguoi_dung_infor;
+    ArrayList<NguoiDung> lstUser = new ArrayList<>();
     BanBe ban_be_info;
     Integer status = -1;
     Fragment selectedFragment;
+    RecyclerView recycleDanhSachBanBe_Tim;
+    ProgressBar progressBar_TimBanBe;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_them_ban, container, false);
         ban_be_info = new BanBe();
+        lstUser.clear();
         Init_Data();
         GetMaNguoiDung();
+        TextChange();
+        GetDanhSachBan();
         btnTim.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,12 +81,78 @@ public class ThemBanFragment extends Fragment {
     }
 
     protected void Init_Data() {
+        progressBar_TimBanBe = (ProgressBar) view.findViewById(R.id.progressBar_TimBanBe);
         preferences = getActivity().getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         token = preferences.getString("Token_DangNhap", "");
         SDT = preferences.getString("SoDienThoai", "");
         btnTim = (Button) view.findViewById(R.id.btnTimBan);
         txtSDT = (EditText) view.findViewById(R.id.etxtSoDienThoai_TimBanBe);
         prgbr_Loading = (ProgressBar) view.findViewById(R.id.prgbr_Loading);
+        recycleDanhSachBanBe_Tim = (RecyclerView) view.findViewById(R.id.recycleDanhSachBanBe_Tim);
+        layoutManager = new LinearLayoutManager(view.getContext());
+        recycleDanhSachBanBe_Tim.setLayoutManager(layoutManager);
+    }
+
+    protected void ShowDanhSach(){
+        adapter = new MyAdapter(view.getContext(), lstUser);
+        adapter.notifyDataSetChanged();
+        recycleDanhSachBanBe_Tim.setAdapter(adapter);
+    }
+
+    protected void GetDanhSachBan(){
+        progressBar_TimBanBe.setVisibility(View.VISIBLE);
+        int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
+        DataClient client = APIUtils.getData();
+        BanBe banBe = new BanBe();
+        banBe.setMaNguoiDung_Mot(MaNguoiDung);
+        Call<Message> call = client.GetListFriend(banBe);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess() == 1) {
+                        for (NguoiDung user : response.body().getDanhsach()){
+                            if (user.isStatus()){
+                                lstUser.add(user);
+                            }
+                        }
+                        ShowDanhSach();
+                        progressBar_TimBanBe.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+
+            }
+        });
+    }
+
+    protected void TextChange(){
+        txtSDT.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ArrayList<NguoiDung> lstUserTemp = new ArrayList<>();
+                for (NguoiDung user : lstUser){
+                    if (user.getSoDienThoai().contains(s)){
+                        lstUserTemp.add(user);
+                    }
+                }
+                adapter = new MyAdapter(view.getContext(), lstUserTemp);
+                recycleDanhSachBanBe_Tim.setAdapter(adapter);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     protected void GetMaNguoiDung(){

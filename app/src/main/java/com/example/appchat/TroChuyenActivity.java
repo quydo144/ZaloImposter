@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,6 +39,7 @@ public class TroChuyenActivity extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         Init_Data();
+        btnCross_Click();
         btnSettings_Profile_Click();
         TimBanBe_Click();
 
@@ -59,6 +61,7 @@ public class TroChuyenActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.nav_message:
+                    btnSettings_Profile.setVisibility(View.GONE);
                     selectedFragment = new TroChuyenFragment();
                     btnCross.setVisibility(View.VISIBLE);
                     break;
@@ -87,6 +90,28 @@ public class TroChuyenActivity extends AppCompatActivity {
             return true;
         }
     };
+
+    protected void btnCross_Click(){
+        btnCross.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(TroChuyenActivity.this, btnCross);
+                popup.inflate(R.menu.plus_navigation_menu);
+                popup.show();
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()){
+                            case R.id.imenu_AddBanBe:
+                                TimBanBe();
+                                break;
+                        }
+                        return false;
+                    }
+                });
+            }
+        });
+    }
 
     protected void btnSettings_Profile_Click() {
         btnSettings_Profile.setOnClickListener(new View.OnClickListener() {
@@ -162,11 +187,15 @@ public class TroChuyenActivity extends AppCompatActivity {
         btnTimBanBe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectedFragment = new ThemBanFragment();
-                btnSettings_Profile.setVisibility(View.GONE);
-                btnCross.setVisibility(View.VISIBLE);
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_main, selectedFragment).addToBackStack(selectedFragment.getClass().getSimpleName()).commit();
+                TimBanBe();
             }
         });
+    }
+
+    protected void TimBanBe(){
+        selectedFragment = new ThemBanFragment();
+        btnSettings_Profile.setVisibility(View.GONE);
+        btnCross.setVisibility(View.VISIBLE);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_main, selectedFragment).addToBackStack(selectedFragment.getClass().getSimpleName()).commit();
     }
 }
