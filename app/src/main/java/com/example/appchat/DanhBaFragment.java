@@ -107,7 +107,7 @@ public class DanhBaFragment extends Fragment {
                         dialog.setTitle("Thông báo");
                         dialog.setMessage("Bạn có muốn xoá hay không?");
 
-                        dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        dialog.setPositiveButton("Có", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
@@ -136,7 +136,7 @@ public class DanhBaFragment extends Fragment {
                             }
                         });
 
-                        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        dialog.setNegativeButton("Không", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 ShowDanhSach();
@@ -172,6 +172,7 @@ public class DanhBaFragment extends Fragment {
             @Override
             public void onResponse(Call<Message> call, Response<Message> response) {
                 if (response.isSuccessful()) {
+                    progressBar.setVisibility(View.GONE);
                     if (response.body().getSuccess() == 1) {
                         for (NguoiDung user : response.body().getDanhsach()){
                             if (user.isStatus()){
@@ -179,14 +180,13 @@ public class DanhBaFragment extends Fragment {
                             }
                         }
                         ShowDanhSach();
-                        progressBar.setVisibility(View.GONE);
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<Message> call, Throwable t) {
-
+                progressBar.setVisibility(View.GONE);
             }
         });
     }

@@ -102,6 +102,7 @@ public class ThemBanFragment extends Fragment {
             @Override
             public void onResponse(Call<Message> call, Response<Message> response) {
                 if (response.isSuccessful()) {
+                    progressBar_TimBanBe.setVisibility(View.GONE);
                     if (response.body().getSuccess() == 1) {
                         for (NguoiDung user : response.body().getDanhsach()){
                             if (user.isStatus()){
@@ -109,14 +110,13 @@ public class ThemBanFragment extends Fragment {
                             }
                         }
                         ShowDanhSach();
-                        progressBar_TimBanBe.setVisibility(View.GONE);
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<Message> call, Throwable t) {
-
+                progressBar_TimBanBe.setVisibility(View.GONE);
             }
         });
     }

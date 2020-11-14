@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.appchat.Adapter.MyAdapter;
 import com.example.appchat.Adapter.OnItemClickListener;
@@ -52,7 +53,6 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         GetDanhSachCho();
         SwipeHelper();
         SwipeRefresh();
-        AcceptBanBe();
         Back();
     }
 
@@ -86,10 +86,6 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         });
     }
 
-    protected void AcceptBanBe(){
-
-    }
-
     protected void SwipeHelper() {
         SwipeHelper swipeHelper = new SwipeHelper(DanhSachLoiMoiKetBanActivity.this, recyclerView, 200) {
             @Override
@@ -102,7 +98,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                         dialog.setTitle("Thông báo");
                         dialog.setMessage("Bạn có muốn xóa lời mời này không?");
 
-                        dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        dialog.setPositiveButton("Có", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
@@ -130,7 +126,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                             }
                         });
 
-                        dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        dialog.setNegativeButton("Không", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 ShowDanhSach();
@@ -163,6 +159,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                         if (response.isSuccessful()){
                             if (response.body().getSuccess() == 1){
                                 lstUser.remove(lstUser.get(position));
+                                Toast.makeText(getApplicationContext(), "Xác nhận thành công", Toast.LENGTH_SHORT).show();
                                 ShowDanhSach();
                             }
                         }
