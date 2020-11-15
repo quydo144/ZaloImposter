@@ -24,39 +24,39 @@ import retrofit2.http.Path;
 
 public interface DataClient {
 
-    @POST("api")
+    @POST("/")
     Call<Message> ThemNguoiDung(@Body NguoiDung nguoiDung);
 
-    @POST("api/login")
+    @POST("/dangnhap")
     Call<Message> DangNhap(@Body NguoiDung nguoiDung);
 
-    @GET("api/sdt={sdt}")
+    @GET("/sdt={sdt}")
     Call<Message> GetThongTinNguoiDung_bySDT(@Path("sdt") String sdt, @HeaderMap Map<String, String> token);
 
-    @PATCH("api")
+    @PATCH("/")
     Call<Message> SuaThongTin(@Body NguoiDung nguoiDung, @HeaderMap Map<String, String> token);
 
-    @POST("api/checksdt")
+    @POST("/checksdt")
     Call<Message> CheckSoDienThoai(@Body NguoiDung nguoiDung);
 
-    @PATCH("api/updatepass")
+    @PATCH("/updatepass")
     Call<Message> UpdatePassword(@Body NguoiDung nguoiDung);
 
-    @POST("api/getTrangThaiFriend")
+    @POST("/getTrangThaiFriend")
     Call<Message> CheckTrangThaiBanBe(@Body BanBe banBe);
 
-    @POST("api/sendRequestAddFriend")
+    @POST("/sendRequestAddFriend")
     Call<Message> SendRequestAddFriend(@Body BanBe banBe);
 
-    @POST("api/deleterequest")
+    @POST("/deleterequest")
     Call<Message> DeleteRequestFriend(@Body BanBe banBe);
 
-    @POST("api/acceptrequest")
+    @POST("/acceptrequest")
     Call<Message> AcceptRequestFriend(@Body BanBe banBe);
 
-    @POST("api/getListFriend")
+    @POST("/getListFriend")
     Call<Message> GetListFriend(@Body BanBe banBe);
 
-    @POST("api/getlistrequestfriend")
+    @POST("/getlistrequestfriend")
     Call<Message> GetListRequestFriend(@Body BanBe banBe);
 }
