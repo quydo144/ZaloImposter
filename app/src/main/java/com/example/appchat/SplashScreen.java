@@ -3,6 +3,7 @@ package com.example.appchat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -30,7 +31,6 @@ public class SplashScreen extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         Init_Data();
-
         if(!KiemTraKetNoiInternet()){
             layout_wait_load_splash_screen.setVisibility(View.GONE);
             HienThiThongBao("Có Lỗi Xảy Ra", "Vui Lòng Kiểm Tra Kết Nối Internet Của Bạn", SplashScreen.this);

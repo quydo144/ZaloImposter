@@ -45,7 +45,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         holder.nameUser.setText(itemNguoiDung.get(position).getHoTen());
         if (statusBanBe){
             holder.btnChapNhanAdd.setVisibility(View.VISIBLE);
-
+        }
+        else {
+            holder.call.setVisibility(View.VISIBLE);
+            holder.videocall.setVisibility(View.VISIBLE);
         }
     }
 

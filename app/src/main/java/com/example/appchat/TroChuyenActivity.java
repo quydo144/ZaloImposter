@@ -2,16 +2,22 @@ package com.example.appchat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.ContextMenu;
-import android.view.MenuInflater;
+import android.os.IBinder;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -21,7 +27,7 @@ import android.widget.PopupMenu;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.ArrayList;
+
 
 public class TroChuyenActivity extends AppCompatActivity {
     Fragment selectedFragment;
@@ -29,6 +35,7 @@ public class TroChuyenActivity extends AppCompatActivity {
     ImageButton btnSettings_Profile;
     ImageButton btnCross;
     Button btnTimBanBe;
+    String name = "ThemBanFragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +49,9 @@ public class TroChuyenActivity extends AppCompatActivity {
         btnCross_Click();
         btnSettings_Profile_Click();
         TimBanBe_Click();
+
+
+
 
         //Set Fragment Mặc Định Sẽ Mở Khi Load Activity
         selectedFragment = new TroChuyenFragment();
@@ -91,7 +101,17 @@ public class TroChuyenActivity extends AppCompatActivity {
         }
     };
 
-    protected void btnCross_Click(){
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        FragmentManager fm = getSupportFragmentManager();
+        for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+            fm.popBackStackImmediate();
+        }
+        finish();
+    }
+
+    protected void btnCross_Click() {
         btnCross.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,7 +121,7 @@ public class TroChuyenActivity extends AppCompatActivity {
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()){
+                        switch (item.getItemId()) {
                             case R.id.imenu_AddBanBe:
                                 TimBanBe();
                                 break;
@@ -171,11 +191,11 @@ public class TroChuyenActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void DoiMatKhau(){
+    protected void DoiMatKhau() {
         SharedPreferences preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         String SDT = preferences.getString("SoDienThoai", "");
 
-        if(!SDT.isEmpty()){
+        if (!SDT.isEmpty()) {
             Intent intent = new Intent(TroChuyenActivity.this, DoiMatKhauActivity.class);
             intent.putExtra("SoDienThoai_NguoiDung", SDT);
             startActivity(intent);
@@ -183,7 +203,7 @@ public class TroChuyenActivity extends AppCompatActivity {
         }
     }
 
-    protected void TimBanBe_Click(){
+    protected void TimBanBe_Click() {
         btnTimBanBe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,10 +212,14 @@ public class TroChuyenActivity extends AppCompatActivity {
         });
     }
 
-    protected void TimBanBe(){
-        selectedFragment = new ThemBanFragment();
-        btnSettings_Profile.setVisibility(View.GONE);
-        btnCross.setVisibility(View.VISIBLE);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_main, selectedFragment).addToBackStack(selectedFragment.getClass().getSimpleName()).commit();
+    protected void TimBanBe() {
+
+        if (!selectedFragment.getClass().getSimpleName().equals("ThemBanFragment")) {
+            selectedFragment = new ThemBanFragment();
+            name = selectedFragment.getClass().getSimpleName();
+            btnSettings_Profile.setVisibility(View.GONE);
+            btnCross.setVisibility(View.VISIBLE);
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_main, selectedFragment).addToBackStack(selectedFragment.getClass().getSimpleName()).commit();
+        }
     }
 }

@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Queue;
 
 public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
-
+    boolean isDraw = false;
     int buttonWith;
     private RecyclerView recyclerView;
     private List<MyButton> buttonList;
@@ -37,8 +37,9 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             for (MyButton button : buttonList) {
-                if (button.onClick(e.getX(), e.getY()))
+                if (button.onClick(e.getX(), e.getY())){
                     break;
+                }
             }
             return true;
         }
@@ -64,9 +65,7 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
                 }
             }
             return false;
-        }
-
-        ;
+        };
     };
 
     private synchronized void recoverSwipedItem() {
@@ -110,6 +109,7 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
         int pos = viewHolder.getAdapterPosition();
+        isDraw = true;
         if (swipePosition != pos)
             removeQueue.add(swipePosition);
         swipePosition = pos;
