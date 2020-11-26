@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Queue;
 
 public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
-    boolean isDraw = false;
     int buttonWith;
     private RecyclerView recyclerView;
     private List<MyButton> buttonList;
@@ -48,21 +47,26 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
     private View.OnTouchListener onTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if (swipePosition < 0)
-                return false;
-            Point point = new Point((int) event.getRawX(), (int) event.getRawY());
-            RecyclerView.ViewHolder swipeViewHolder = recyclerView.findViewHolderForAdapterPosition(swipePosition);
-            View swipeItem = swipeViewHolder.itemView;
-            Rect rect = new Rect();
-            swipeItem.getGlobalVisibleRect(rect);
-            if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_MOVE) {
-                if (rect.top < point.y && rect.bottom > point.y)
-                    gestureDetector.onTouchEvent(event);
-                else {
-                    removeQueue.add(swipePosition);
-                    swipePosition = -1;
-                    recoverSwipedItem();
+            try {
+                if (swipePosition < 0)
+                    return false;
+                Point point = new Point((int) event.getRawX(), (int) event.getRawY());
+                RecyclerView.ViewHolder swipeViewHolder = recyclerView.findViewHolderForAdapterPosition(swipePosition);
+                View swipeItem = swipeViewHolder.itemView;
+                Rect rect = new Rect();
+                swipeItem.getGlobalVisibleRect(rect);
+                if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (rect.top < point.y && rect.bottom > point.y)
+                        gestureDetector.onTouchEvent(event);
+                    else {
+                        removeQueue.add(swipePosition);
+                        swipePosition = -1;
+                        recoverSwipedItem();
+                    }
                 }
+                return false;
+            }catch (Exception e) {
+
             }
             return false;
         };
@@ -109,7 +113,6 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
         int pos = viewHolder.getAdapterPosition();
-        isDraw = true;
         if (swipePosition != pos)
             removeQueue.add(swipePosition);
         swipePosition = pos;

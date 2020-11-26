@@ -102,17 +102,9 @@ public class DanhBaFragment extends Fragment {
         SwipeHelper swipeHelper = new SwipeHelper(view.getContext(), recyclerView, 200) {
             @Override
             public void instantiateMyButton(RecyclerView.ViewHolder viewHolder, List<MyButton> buffer) {
-                Log.e("Count Swipe Bat Dau", Integer.toString(CountSwipe));
-
                 MyButton temp = new MyButton(view.getContext(),"", 0, R.drawable.ic_baseline_delete_24, Color.parseColor("#FF3c30"), new MyButtonClickListener() {
                     @Override
                     public void onClick(int pos) {
-                        if(CountSwipe % 2 != 0){
-                            CountSwipe = 1;
-                            return;
-                        }
-                        Log.e("Count Swipe Click", Integer.toString(CountSwipe));
-
                         AlertDialog.Builder dialog = new AlertDialog.Builder(view.getContext());
                         dialog.setTitle("Thông báo");
                         dialog.setMessage("Bạn có muốn xoá hay không?");
@@ -156,24 +148,17 @@ public class DanhBaFragment extends Fragment {
                         AlertDialog alertDialog = dialog.create();
                         alertDialog.setCanceledOnTouchOutside(false);
                         alertDialog.show();
-
-                        CountSwipe = 1;
                     }
                 });
                 buffer.add(temp);
-                CountSwipe += 1;
             }
         };
     }
 
     protected void ShowDanhSach(){
         adapter = new MyAdapter(view.getContext(), lstUser, false);
-        adapter.notifyDataSetChanged();
         recyclerView.setAdapter(adapter);
-    }
-
-    public void AcceptBanBe(){
-
+        adapter.notifyDataSetChanged();
     }
 
     protected void GetDanhSachBan(){
