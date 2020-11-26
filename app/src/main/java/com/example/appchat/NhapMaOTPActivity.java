@@ -173,7 +173,7 @@ public class NhapMaOTPActivity extends AppCompatActivity {
         btnResend_Code_DangKy.setEnabled(false);
 
         PhoneAuthProvider.getInstance().verifyPhoneNumber(phone, 60, TimeUnit.SECONDS,
-                (Activity) TaskExecutors.MAIN_THREAD,
+                TaskExecutors.MAIN_THREAD,
                 new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
@@ -239,7 +239,7 @@ public class NhapMaOTPActivity extends AppCompatActivity {
         btnResend_Code_DangKy.setEnabled(false);
 
         PhoneAuthProvider.getInstance().verifyPhoneNumber(phone, 60, TimeUnit.SECONDS,
-                (Activity) TaskExecutors.MAIN_THREAD,
+                TaskExecutors.MAIN_THREAD,
                 new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {

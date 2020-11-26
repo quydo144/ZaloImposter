@@ -23,9 +23,6 @@ import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -123,7 +120,6 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
                         if (response.isSuccessful()){
                             if (response.body().getSuccess() == 2){
                                 Toast.makeText(ThongTinChuaKetBanActivity.this, "Gửi lời mời thành công", Toast.LENGTH_SHORT).show();
-                                String token = FirebaseInstanceId.getInstance().getToken();
                                 Bundle bundle = new Bundle();
                                 Intent intent = new Intent(ThongTinChuaKetBanActivity.this, ThongTinDaGuiLoiMoiKetBan.class);
                                 bundle.putSerializable("ThongTinNguoiDung", nguoi_dung);
