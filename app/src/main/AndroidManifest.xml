@@ -16,7 +16,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ThongTinChapNhanLoiMoiKetBan"></activity>
+        <activity android:name=".TaoNhomActivity"></activity>
+        <activity android:name=".NhanTinNhomActivity" />
+        <activity android:name=".TuyChonChatActivity" />
+        <activity android:name=".NhanTinDonActivity" />
+        <activity android:name=".ThongTinChapNhanLoiMoiKetBan" />
         <activity android:name=".DanhSachLoiMoiKetBanActivity" />
         <activity android:name=".ThongTinDaGuiLoiMoiKetBan" />
         <activity android:name=".ThongTinDaKetBanActivity" />
@@ -40,6 +44,7 @@
         <activity android:name=".DangKySoDienThoaiActivity" />
         <activity android:name=".DangNhapActivity" />
         <activity android:name=".WelcomeActivity" />
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

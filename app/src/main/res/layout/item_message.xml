@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="5dp"
+    android:backgroundTint="@color/colorLightGrey"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/container_nguoi_nhan"
+        android:padding="8dp"
+        android:orientation="vertical"
+        android:background="@drawable/text_nguoi_gui"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/img_logo_nhan"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:src="@drawable/ic_baseline_account_circle_24"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"></ImageView>
+
+            <TextView
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/img_logo_nhan"
+                android:id="@+id/tvTenNhan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:paddingTop="5dp"
+                android:textStyle="bold"
+                android:textAlignment="textStart"
+                android:paddingBottom="5dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="15dp"
+                android:textColor="#000"
+                android:text="Server" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tvNhan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:paddingTop="5dp"
+            android:textAlignment="textStart"
+            android:paddingBottom="5dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:textColor="#000"
+            android:text="TextView" />
+    </LinearLayout>
+
+
+
+    <TextView
+        android:id="@+id/tvGui"
+        android:layout_gravity="end"
+        android:textColor="#000"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:background="@drawable/text_nguoi_gui"
+        android:text="TextView" />
+</LinearLayout>
