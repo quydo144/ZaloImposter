@@ -69,27 +69,33 @@ public class TroChuyenActivity extends AppCompatActivity {
     private BottomNavigationView.OnNavigationItemSelectedListener navListerner = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
             switch (item.getItemId()) {
+
                 case R.id.nav_message:
                     btnSettings_Profile.setVisibility(View.GONE);
                     selectedFragment = new TroChuyenFragment();
                     btnCross.setVisibility(View.VISIBLE);
                     break;
+
                 case R.id.nav_friend:
                     selectedFragment = new DanhBaFragment();
                     btnSettings_Profile.setVisibility(View.GONE);
                     btnCross.setVisibility(View.VISIBLE);
                     break;
+
                 case R.id.nav_group:
                     selectedFragment = new NhomFragment();
                     btnSettings_Profile.setVisibility(View.GONE);
                     btnCross.setVisibility(View.VISIBLE);
                     break;
+
                 case R.id.nav_profile:
                     selectedFragment = new ThongTinFragment();
                     btnSettings_Profile.setVisibility(View.VISIBLE);
                     btnCross.setVisibility(View.GONE);
                     break;
+
                 default:
                     selectedFragment = new TroChuyenFragment();
                     btnSettings_Profile.setVisibility(View.GONE);
@@ -103,12 +109,17 @@ public class TroChuyenActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+
+        //Back form
         super.onBackPressed();
+
+        //Clear frame ...
         FragmentManager fm = getSupportFragmentManager();
         for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
             fm.popBackStackImmediate();
         }
-        finish();
+
+
     }
 
     protected void btnCross_Click() {
