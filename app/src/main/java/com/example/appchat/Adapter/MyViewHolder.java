@@ -12,15 +12,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.appchat.R;
 
-public class MyViewHolder extends RecyclerView.ViewHolder{
+public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
+    private ItemClickListener itemClickListener;
     TextView nameUser;
     Button btnChapNhanAdd;
     ImageView call, videocall;
 
     public MyViewHolder(@NonNull View itemView, OnItemClickListener listener) {
         super(itemView);
-
+        itemView.setOnClickListener(this);
         nameUser = (TextView) itemView.findViewById(R.id.nameUser);
         btnChapNhanAdd = (Button) itemView.findViewById(R.id.btnChapNhanBanBe);
         call = (ImageView) itemView.findViewById(R.id.call);
@@ -34,4 +35,12 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
         });
     }
 
+    public void setItemClickListener(ItemClickListener itemClickListener) {
+        this.itemClickListener = itemClickListener;
+    }
+
+    @Override
+    public void onClick(View v) {
+        itemClickListener.onClick(v, getAdapterPosition());
+    }
 }
