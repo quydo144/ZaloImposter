@@ -1,6 +1,7 @@
 package com.example.appchat.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.appchat.DanhBaFragment;
 import com.example.appchat.Models.NguoiDung;
+import com.example.appchat.NhanTinDonActivity;
 import com.example.appchat.R;
 
 import java.util.ArrayList;
@@ -47,7 +50,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         holder.setItemClickListener(new ItemClickListener() {
             @Override
             public void onClick(View view, int position) {
-                Toast.makeText(view.getContext(), "Click item", Toast.LENGTH_SHORT).show();
+
+                String sdt = itemNguoiDung.get(position).getSoDienThoai();
+                String ten = itemNguoiDung.get(position).getHoTen();
+
+                Intent intent = new Intent(view.getContext(),NhanTinDonActivity.class);
+
+                intent.putExtra("sdt",sdt);
+                intent.putExtra("ten",ten);
+                view.getContext().startActivity(intent);
+
             }
         });
 
