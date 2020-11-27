@@ -2,10 +2,10 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">13.229.207.6</domain>
-<<<<<<< HEAD
+
         <domain includeSubdomains="true">54.179.131.22</domain>
-=======
+
         <domain includeSubdomains="true">192.168.2.45</domain>
->>>>>>> origin/master
+
     </domain-config>
 </network-security-config>

@@ -1,6 +1,8 @@
 package com.example.appchat.Models;
 
-public class NhanTin {
+import java.io.Serializable;
+
+public class NhanTin implements Serializable {
     private String tinGui;
     private String tinNhan;
 

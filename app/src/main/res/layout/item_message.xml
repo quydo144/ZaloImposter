@@ -74,6 +74,6 @@
         android:paddingBottom="5dp"
         android:paddingStart="15dp"
         android:paddingEnd="15dp"
-        android:background="@drawable/text_nguoi_gui"
+        android:background="@drawable/text_nguoi_nhan"
         android:text="TextView" />
 </LinearLayout>

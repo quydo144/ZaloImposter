@@ -4,19 +4,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.example.appchat.Adapter.NhanTinAdapter;
+import com.example.appchat.Models.NhanTin;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
-import com.example.appchat.Adapter.NhanTinAdapter;
-import com.example.appchat.Models.NhanTin;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,12 +29,11 @@ import java.util.ArrayList;
 public class NhanTinDonActivity extends AppCompatActivity {
 
     Socket client_socket;
-    ImageButton btnGui_Chat, btnTuyChon;
+    ImageButton btnGui_Chat, btnTuyChon, btnBack_DanhBa, btnGuiTinNhan_File, btnGuiTinNhan_Hinh;
     EditText edtNhanTin;
-    Button btnBack;
     TextView tvTenNguoiNhan;
-    RecyclerView rvTinNhan;
-    ArrayList<NhanTin> NhanTins;
+    RecyclerView recycleTinNhan;
+    ArrayList<NhanTin> listNhanTin;
     NhanTinAdapter nhanTinAdapter;
     SharedPreferences sharedPreferences;
 
@@ -42,15 +43,15 @@ public class NhanTinDonActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nhan_tin_don);
 
-        NhanTins = new ArrayList<>();
+        listNhanTin = new ArrayList<>();
 
-        rvTinNhan = findViewById(R.id.recycleTinNhanChat);
+        recycleTinNhan = findViewById(R.id.recycleTinNhanChat);
         LinearLayoutManager layoutManager = new LinearLayoutManager(NhanTinDonActivity.this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         layoutManager.setStackFromEnd(true);
-        nhanTinAdapter = new NhanTinAdapter(NhanTinDonActivity.this, NhanTins);
-        rvTinNhan.setAdapter(nhanTinAdapter);
-        rvTinNhan.setLayoutManager(layoutManager);
+        nhanTinAdapter = new NhanTinAdapter(NhanTinDonActivity.this, listNhanTin);
+        recycleTinNhan.setAdapter(nhanTinAdapter);
+        recycleTinNhan.setLayoutManager(layoutManager);
 
         SharedPreferences preferences = getSharedPreferences("data_dang_nhap",MODE_PRIVATE);
         String soDienThoai = preferences.getString("SoDienThoai","");
@@ -80,11 +81,30 @@ public class NhanTinDonActivity extends AppCompatActivity {
 
         edtNhanTin = (EditText) findViewById(R.id.edtTinNhan_Don);
         btnGui_Chat = (ImageButton) findViewById(R.id.btn_Gui_Tin_Nhan_Don);
+        btnTuyChon= findViewById(R.id.btn_Tuy_Chon_Chat_Don);
+        btnBack_DanhBa= findViewById(R.id.btnBack_Fragment_Tro_Chuyen);
+
+        btnBack_DanhBa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        btnTuyChon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(NhanTinDonActivity.this, TuyChonChatActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
 
         btnGui_Chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NhanTins.add(new NhanTin(edtNhanTin.getText().toString().trim(), ""));
+                listNhanTin.add(new NhanTin(edtNhanTin.getText().toString().trim(), ""));
                 JSONObject object = new JSONObject();
                 try {
                     object.put("NickName", ten);
@@ -94,7 +114,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 }
                 client_socket.emit("CLIENT_GUI_TIN_NHAN", object);
                 nhanTinAdapter.notifyDataSetChanged();
-                rvTinNhan.scrollToPosition(NhanTins.size() - 1);
+                recycleTinNhan.scrollToPosition(listNhanTin.size() - 1);
 
                 edtNhanTin.setText("");
             }
@@ -120,12 +140,14 @@ public class NhanTinDonActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    NhanTins.add(new NhanTin(tinNhan_Nhan, tinNhan_Gui));
+                    listNhanTin.add(new NhanTin(tinNhan_Nhan, tinNhan_Gui));
                     nhanTinAdapter.notifyDataSetChanged();
-                    rvTinNhan.scrollToPosition(NhanTins.size() - 1);
+                    recycleTinNhan.scrollToPosition(listNhanTin.size() - 1);
                 }
             });
         }
     };
+
+
 
 }

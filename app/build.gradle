@@ -51,11 +51,11 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
 
     implementation 'com.github.bumptech.glide:glide:4.9.0'
-<<<<<<< HEAD
+
     implementation 'com.github.nkzawa:socket.io-client:0.6.0'
 
 
-=======
+
     implementation "io.socket:socket.io-client:1.0.0"
->>>>>>> origin/master
+
 }
