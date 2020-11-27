@@ -31,9 +31,12 @@ import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -53,9 +56,20 @@ public class DanhBaFragment extends Fragment {
     SwipeRefreshLayout refreshLayout;
     ProgressBar progressBar;
 
+    private Socket mClient;{
+        try {
+            mClient = IO.socket("http://192.168.2.45:5000");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_danh_ba,container,false);
+
+        mClient.connect();
+
         Init();
         GetDanhSachBan();
         SwipeHelper();
