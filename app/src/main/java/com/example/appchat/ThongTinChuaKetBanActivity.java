@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.ShareActionProvider;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +25,13 @@ import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.net.URISyntaxException;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -42,10 +50,20 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thong_tin_chua_ket_ban);
 
+        mClient.connect();
+
         Init_Data();
         Load_Data();
         AddFriend();
         Back();
+    }
+
+    private Socket mClient;{
+        try {
+            mClient = IO.socket("http://192.168.2.45:5000");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void Init_Data(){
@@ -119,6 +137,23 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
                     public void onResponse(Call<Message> call, Response<Message> response) {
                         if (response.isSuccessful()){
                             if (response.body().getSuccess() == 2){
+                                //Gửi Thông Báo Kết Bạn
+                                SharedPreferences preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
+                                String SoDienThoai = preferences.getString("SoDienThoai", "");
+
+                                JSONObject object = new JSONObject();
+
+                                try {
+                                    object.put("NguoiNhanLoiMoi", nguoi_dung.getSoDienThoai());
+                                    object.put("NguoiGuiLoiMoi", SoDienThoai);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                mClient.emit("DaGuiLoiMoiKetBan", object);
+
+                                //********************************************************************************************
+
                                 Toast.makeText(ThongTinChuaKetBanActivity.this, "Gửi lời mời thành công", Toast.LENGTH_SHORT).show();
                                 Bundle bundle = new Bundle();
                                 Intent intent = new Intent(ThongTinChuaKetBanActivity.this, ThongTinDaGuiLoiMoiKetBan.class);
@@ -138,5 +173,4 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
             }
         });
     }
-
 }
