@@ -1,10 +1,15 @@
 package com.example.appchat;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +36,11 @@ import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -37,6 +48,7 @@ import java.util.List;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -56,19 +68,9 @@ public class DanhBaFragment extends Fragment {
     SwipeRefreshLayout refreshLayout;
     ProgressBar progressBar;
 
-    private Socket mClient;{
-        try {
-            mClient = IO.socket("http://192.168.2.45:5000");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_danh_ba,container,false);
-
-        mClient.connect();
 
         Init();
         GetDanhSachBan();
@@ -76,9 +78,24 @@ public class DanhBaFragment extends Fragment {
         LoiMoiKetBan_Click();
         SwipeRefreshLayout();
         lstUser.clear();
-        return view;
 
+        return view;
     }
+
+    /*
+    private void GuiThongBaoDangKyThongTinDanhBa(){
+        SharedPreferences preferences = preferences = getActivity().getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
+        String SoDienThoai = preferences.getString("SoDienThoai", "");
+
+        JSONObject object = new JSONObject();
+        try {
+            object.put("SoDienThoai", SoDienThoai);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        mClient.emit("DangKyThongBaoDanhBa", object);
+    }*/
 
     protected void Init(){
         preferences = getActivity().getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
@@ -170,9 +187,26 @@ public class DanhBaFragment extends Fragment {
     }
 
     protected void ShowDanhSach(){
+        SharedPreferences preferences = getActivity().getSharedPreferences("data_danh_ba", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+
+        String json = gson.toJson(lstUser);
+        editor.putString("ListUser", json);
+        editor.commit();
+
         adapter = new MyAdapter(view.getContext(), lstUser, false);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+
+//        JSONObject object = new JSONObject();
+//        try {
+//            object.put("ThongBao", json);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        mClient.emit("ThongBaoHienThiDanhBa", object);
     }
 
     protected void GetDanhSachBan(){
