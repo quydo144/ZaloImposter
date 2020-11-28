@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class NguoiDung implements Serializable {
     @SerializedName("MaNguoiDung")
@@ -82,5 +83,18 @@ public class NguoiDung implements Serializable {
 
     public void setMaNguoiDung(int maNguoiDung) {
         this.maNguoiDung = maNguoiDung;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NguoiDung nguoiDung = (NguoiDung) o;
+        return maNguoiDung == nguoiDung.maNguoiDung;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(maNguoiDung);
     }
 }

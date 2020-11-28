@@ -24,11 +24,14 @@ import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
+import com.example.appchat.Socket.SocketClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -44,26 +47,19 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
     Button btnNhanTin, btnKetBan;
     ImageButton btnBack_ThemBan;
     SharedPreferences preferences;
+    SocketClient mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thong_tin_chua_ket_ban);
 
-        mClient.connect();
+        mClient = new SocketClient();
 
         Init_Data();
         Load_Data();
         AddFriend();
         Back();
-    }
-
-    private Socket mClient;{
-        try {
-            mClient = IO.socket("http://192.168.1.8:5000");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
     }
 
     protected void Init_Data(){
@@ -140,17 +136,7 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
                                 //Gửi Thông Báo Kết Bạn
                                 SharedPreferences preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
                                 String SoDienThoai = preferences.getString("SoDienThoai", "");
-
-                                JSONObject object = new JSONObject();
-
-                                try {
-                                    object.put("NguoiNhanLoiMoi", nguoi_dung.getSoDienThoai());
-                                    object.put("NguoiGuiLoiMoi", SoDienThoai);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                                mClient.emit("DaGuiLoiMoiKetBan", object);
+                                GuiThongBaoKetBan(SoDienThoai);
 
                                 //********************************************************************************************
 
@@ -170,6 +156,45 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
 
                     }
                 });
+            }
+        });
+    }
+
+    private void GuiThongBaoKetBan(String SDT) {
+        String temp = preferences.getString("Token_DangNhap", "");
+        Map<String, String> map = new HashMap<>();
+        map.put("Authorization", ("Bearer " + temp).trim());
+
+        DataClient client = APIUtils.getData();
+        Call<Message> call = client.GetThongTinNguoiDung_bySDT(SDT, map);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess() == 1) {
+                        NguoiDung nguoi_dung_infor = response.body().getData();
+
+                        //Gửi Thông Báo Kết Bạn
+                        SharedPreferences preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
+
+                        JSONObject object = new JSONObject();
+
+                        try {
+                            object.put("NguoiNhanLoiMoi", nguoi_dung.getSoDienThoai());
+                            object.put("NguoiGuiLoiMoi", SDT);
+                            object.put("NguoiGuiLoiMoi_HoTen", nguoi_dung_infor.getHoTen());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        mClient.getmClient().emit("DaGuiLoiMoiKetBan", object);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+
             }
         });
     }
