@@ -53,11 +53,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
                 String sdt = itemNguoiDung.get(position).getSoDienThoai();
                 String ten = itemNguoiDung.get(position).getHoTen();
+                int id_user = itemNguoiDung.get(position).getMaNguoiDung();
 
                 Intent intent = new Intent(view.getContext(),NhanTinDonActivity.class);
 
                 intent.putExtra("sdt",sdt);
                 intent.putExtra("ten",ten);
+                intent.putExtra("id_user", id_user);
                 view.getContext().startActivity(intent);
 
             }

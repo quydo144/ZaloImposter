@@ -9,12 +9,17 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.appchat.Adapter.NhanTinAdapter;
+import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NhanTin;
+import com.example.appchat.Models.Room;
+import com.example.appchat.Retrofit2.APIUtils;
+import com.example.appchat.Retrofit2.DataClient;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -26,6 +31,10 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class NhanTinDonActivity extends AppCompatActivity {
 
     Socket client_socket;
@@ -35,16 +44,25 @@ public class NhanTinDonActivity extends AppCompatActivity {
     RecyclerView recycleTinNhan;
     ArrayList<NhanTin> listNhanTin;
     NhanTinAdapter nhanTinAdapter;
-    SharedPreferences sharedPreferences;
+    SharedPreferences preferences;
+    String ten;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nhan_tin_don);
+        Init();
+        Back_DanhBa();
+        InitSocket();
+        SendMessage();
+        TuyChon();
 
+    }
+
+    protected void Init() {
+        preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         listNhanTin = new ArrayList<>();
-
         recycleTinNhan = findViewById(R.id.recycleTinNhanChat);
         LinearLayoutManager layoutManager = new LinearLayoutManager(NhanTinDonActivity.this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
@@ -52,55 +70,88 @@ public class NhanTinDonActivity extends AppCompatActivity {
         nhanTinAdapter = new NhanTinAdapter(NhanTinDonActivity.this, listNhanTin);
         recycleTinNhan.setAdapter(nhanTinAdapter);
         recycleTinNhan.setLayoutManager(layoutManager);
+        edtNhanTin = (EditText) findViewById(R.id.edtTinNhan_Don);
+        btnGui_Chat = (ImageButton) findViewById(R.id.btn_Gui_Tin_Nhan_Don);
+        btnTuyChon = findViewById(R.id.btn_Tuy_Chon_Chat_Don);
+        btnBack_DanhBa = findViewById(R.id.btnBack_Fragment_Tro_Chuyen);
+        ten = getIntent().getStringExtra("ten");
+    }
 
-        SharedPreferences preferences = getSharedPreferences("data_dang_nhap",MODE_PRIVATE);
-        String soDienThoai = preferences.getString("SoDienThoai","");
-        String sdt = getIntent().getStringExtra("sdt");
-
-        String tenPhong = sdt.concat(soDienThoai);
-        String ten = getIntent().getStringExtra("ten");
-        Log.d("123", "onCreate: tenPhong" +tenPhong);
-
-        JSONObject object = new JSONObject();
-        try{
-            object.put("NickName",ten);
-            object.put("TenPhong","123");
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-
+    protected void InitSocket() {
         try {
             client_socket = IO.socket("http://54.179.131.22:3002");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
 
+        JSONObject object = new JSONObject();
+        try {
+            object.put("NickName", ten);
+            object.put("TenPhong", CheckRoom());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         client_socket.connect();
         client_socket.on("SERVER_GUI_TIN_NHAN", NhanTinNhanServer);
         client_socket.emit("DANG_KY_PHONG", object);
+    }
 
-        edtNhanTin = (EditText) findViewById(R.id.edtTinNhan_Don);
-        btnGui_Chat = (ImageButton) findViewById(R.id.btn_Gui_Tin_Nhan_Don);
-        btnTuyChon= findViewById(R.id.btn_Tuy_Chon_Chat_Don);
-        btnBack_DanhBa= findViewById(R.id.btnBack_Fragment_Tro_Chuyen);
-
-        btnBack_DanhBa.setOnClickListener(new View.OnClickListener() {
+    private String CheckRoom(){
+        String soDienThoai = preferences.getString("SoDienThoai", "");
+        String sdt = getIntent().getStringExtra("sdt");
+        String id_room_sdt = sdt.concat(soDienThoai);
+        final String[] id_room = {""};
+        int id_user_2 = getIntent().getIntExtra("id_user", 0);
+        int id_user_1 = preferences.getInt("MaNguoiDung", 0);
+        Room room = new Room();
+        room.setId_user_1(id_user_1);
+        room.setId_user_2(id_user_2);
+        DataClient client = APIUtils.getData();
+        Call<Message> call = client.FindRoomChat(room);
+        call.enqueue(new Callback<Message>() {
             @Override
-            public void onClick(View v) {
-                finish();
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccessful())
+                    if (response.body().getSuccess() == 1){
+                        id_room[0] = response.body().getId_room();
+                    }
+                else {
+                        room.setId_room(id_room_sdt);
+                        id_room[0] = AddRoom(room);
+                    }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+
             }
         });
+        return id_room[0];
+    }
 
-        btnTuyChon.setOnClickListener(new View.OnClickListener() {
+    private String AddRoom(Room room){
+        final String[] id_room = {""};
+        DataClient client = APIUtils.getData();
+        Call<Message> call = client.AddRoomChat(room);
+        call.enqueue(new Callback<Message>() {
             @Override
-            public void onClick(View v) {
-                Intent intent= new Intent(NhanTinDonActivity.this, TuyChonChatActivity.class);
-                startActivity(intent);
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccessful())
+                    if (response.body().getSuccess() == 1){
+                        id_room[0] = room.getId_room();
+                    }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+
             }
         });
+        return id_room[0];
+    }
 
-
-
+    protected void SendMessage() {
         btnGui_Chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,6 +168,25 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 recycleTinNhan.scrollToPosition(listNhanTin.size() - 1);
 
                 edtNhanTin.setText("");
+            }
+        });
+    }
+
+    protected void Back_DanhBa() {
+        btnBack_DanhBa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+    }
+
+    protected void TuyChon() {
+        btnTuyChon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(NhanTinDonActivity.this, TuyChonChatActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -147,7 +217,6 @@ public class NhanTinDonActivity extends AppCompatActivity {
             });
         }
     };
-
 
 
 }

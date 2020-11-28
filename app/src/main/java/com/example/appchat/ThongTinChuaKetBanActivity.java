@@ -60,7 +60,7 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
 
     private Socket mClient;{
         try {
-            mClient = IO.socket("http://192.168.2.45:5000");
+            mClient = IO.socket("http://192.168.1.8:5000");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
