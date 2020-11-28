@@ -46,7 +46,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
     NhanTinAdapter nhanTinAdapter;
     SharedPreferences preferences;
     String ten;
-
+    String id_room = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,26 +55,27 @@ public class NhanTinDonActivity extends AppCompatActivity {
         Init();
         Back_DanhBa();
         InitSocket();
+        CheckRoom();
         SendMessage();
         TuyChon();
 
     }
 
     protected void Init() {
+        ten = getIntent().getStringExtra("ten");
         preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         listNhanTin = new ArrayList<>();
         recycleTinNhan = findViewById(R.id.recycleTinNhanChat);
         LinearLayoutManager layoutManager = new LinearLayoutManager(NhanTinDonActivity.this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         layoutManager.setStackFromEnd(true);
-        nhanTinAdapter = new NhanTinAdapter(NhanTinDonActivity.this, listNhanTin);
+        nhanTinAdapter = new NhanTinAdapter(NhanTinDonActivity.this, listNhanTin, ten);
         recycleTinNhan.setAdapter(nhanTinAdapter);
         recycleTinNhan.setLayoutManager(layoutManager);
         edtNhanTin = (EditText) findViewById(R.id.edtTinNhan_Don);
         btnGui_Chat = (ImageButton) findViewById(R.id.btn_Gui_Tin_Nhan_Don);
         btnTuyChon = findViewById(R.id.btn_Tuy_Chon_Chat_Don);
         btnBack_DanhBa = findViewById(R.id.btnBack_Fragment_Tro_Chuyen);
-        ten = getIntent().getStringExtra("ten");
     }
 
     protected void InitSocket() {
@@ -84,24 +85,16 @@ public class NhanTinDonActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        JSONObject object = new JSONObject();
-        try {
-            object.put("NickName", ten);
-            object.put("TenPhong", CheckRoom());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         client_socket.connect();
         client_socket.on("SERVER_GUI_TIN_NHAN", NhanTinNhanServer);
-        client_socket.emit("DANG_KY_PHONG", object);
+
     }
 
-    private String CheckRoom(){
+    private void CheckRoom() {
         String soDienThoai = preferences.getString("SoDienThoai", "");
         String sdt = getIntent().getStringExtra("sdt");
         String id_room_sdt = sdt.concat(soDienThoai);
-        final String[] id_room = {""};
+
         int id_user_2 = getIntent().getIntExtra("id_user", 0);
         int id_user_1 = preferences.getInt("MaNguoiDung", 0);
         Room room = new Room();
@@ -112,14 +105,21 @@ public class NhanTinDonActivity extends AppCompatActivity {
         call.enqueue(new Callback<Message>() {
             @Override
             public void onResponse(Call<Message> call, Response<Message> response) {
-                if (response.isSuccessful())
-                    if (response.body().getSuccess() == 1){
-                        id_room[0] = response.body().getId_room();
-                    }
-                else {
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess() == 1) {
+                        id_room = response.body().getId_room();
+                    } else {
                         room.setId_room(id_room_sdt);
-                        id_room[0] = AddRoom(room);
+                        AddRoom(room);
                     }
+                    JSONObject object = new JSONObject();
+                    try {
+                        object.put("TenPhong", id_room);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    client_socket.emit("DANG_KY_PHONG", object);
+                }
             }
 
             @Override
@@ -127,19 +127,17 @@ public class NhanTinDonActivity extends AppCompatActivity {
 
             }
         });
-        return id_room[0];
     }
 
-    private String AddRoom(Room room){
-        final String[] id_room = {""};
+    private void AddRoom(Room room) {
         DataClient client = APIUtils.getData();
         Call<Message> call = client.AddRoomChat(room);
         call.enqueue(new Callback<Message>() {
             @Override
             public void onResponse(Call<Message> call, Response<Message> response) {
                 if (response.isSuccessful())
-                    if (response.body().getSuccess() == 1){
-                        id_room[0] = room.getId_room();
+                    if (response.body().getSuccess() == 1) {
+                        id_room = room.getId_room();
                     }
             }
 
@@ -148,7 +146,6 @@ public class NhanTinDonActivity extends AppCompatActivity {
 
             }
         });
-        return id_room[0];
     }
 
     protected void SendMessage() {
@@ -158,7 +155,6 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 listNhanTin.add(new NhanTin(edtNhanTin.getText().toString().trim(), ""));
                 JSONObject object = new JSONObject();
                 try {
-                    object.put("NickName", ten);
                     object.put("NoiDung", edtNhanTin.getText().toString().trim());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -205,7 +201,6 @@ public class NhanTinDonActivity extends AppCompatActivity {
 
                     try {
                         tinNhan_Gui = object.getString("NoiDung");
-                        nickName_Sender = object.getString("NickName");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

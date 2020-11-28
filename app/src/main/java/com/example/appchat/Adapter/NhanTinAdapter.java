@@ -19,10 +19,12 @@ public class NhanTinAdapter extends RecyclerView.Adapter<NhanTinAdapter.ViewHold
 
     Context context;
     ArrayList<NhanTin> NhanTins;
+    String tenNguoiGui;
 
-    public NhanTinAdapter(Context context, ArrayList<NhanTin> nhanTins){
+    public NhanTinAdapter(Context context, ArrayList<NhanTin> nhanTins, String ten){
         this.context= context;
         NhanTins= nhanTins;
+        this.tenNguoiGui = ten;
     }
 
     @NonNull
@@ -46,7 +48,7 @@ public class NhanTinAdapter extends RecyclerView.Adapter<NhanTinAdapter.ViewHold
             holder.tvGui.setVisibility(View.GONE);
             holder.container_nguoi_nhan.setVisibility(View.VISIBLE);
 
-            //holder.tvTenNhan.setText(NhanTins.get(position).getNickName());
+            holder.tvTenNhan.setText(tenNguoiGui);
         }
 
     }
