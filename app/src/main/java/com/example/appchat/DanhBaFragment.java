@@ -1,5 +1,6 @@
 package com.example.appchat;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -36,15 +37,21 @@ import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
+import com.example.appchat.Socket.SocketClient;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -60,6 +67,7 @@ public class DanhBaFragment extends Fragment {
 
     ArrayList<NguoiDung> lstUser = new ArrayList<>();
     View view;
+    Activity myActivity;
     RecyclerView recyclerView;
     MyAdapter adapter;
     LinearLayoutManager layoutManager;
@@ -68,40 +76,130 @@ public class DanhBaFragment extends Fragment {
     SwipeRefreshLayout refreshLayout;
     ProgressBar progressBar;
 
+    SocketClient mClient;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_danh_ba,container,false);
+        mClient = new SocketClient();
+        myActivity = getActivity();
 
+        Init_Socket();
+
+        //Khởi Tạo Dữ Liệu
         Init();
-        GetDanhSachBan();
+
+        SharedPreferences preferences = myActivity.getSharedPreferences("data_danh_ba", MODE_PRIVATE);
+        String ListUser = preferences.getString("ListUser", "");
+
+        if(ListUser.equals("")){
+            GetDanhSachBan();
+        }else{
+            Gson gson = new Gson();
+            Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
+            lstUser = gson.fromJson(ListUser, type);
+
+            adapter = new MyAdapter(myActivity, lstUser, false);
+            recyclerView.setAdapter(adapter);
+        }
+
+        //Nhận Thông Báo Cập Nhật Danh Bạ
+        mClient.getmClient().on("ThongBaoXacNhanLoiMoiKetBan", isCoNguoiXacNhanKetBan);
+
+        //Nhận Thông Báo Xoá Danh Bạ
+        mClient.getmClient().on("ThongBaoXoaDanhBa", ThongBaoXoaDanhBaListener);
+
         SwipeHelper();
         LoiMoiKetBan_Click();
         SwipeRefreshLayout();
-        lstUser.clear();
 
         return view;
     }
 
-    /*
-    private void GuiThongBaoDangKyThongTinDanhBa(){
-        SharedPreferences preferences = preferences = getActivity().getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
+    private void Init_Socket(){
+        SharedPreferences preferences = myActivity.getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         String SoDienThoai = preferences.getString("SoDienThoai", "");
-
         JSONObject object = new JSONObject();
+
         try {
             object.put("SoDienThoai", SoDienThoai);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        mClient.emit("DangKyThongBaoDanhBa", object);
-    }*/
+        mClient.getmClient().emit("DangKyNhanThongBaoDanhBa", object);
+    }
+
+    private final Emitter.Listener isCoNguoiXacNhanKetBan = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            myActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean isCapNhat = false;
+                    JSONArray dsNguoiDung = new JSONArray();
+                    JSONObject object = (JSONObject) args[0];
+
+                    try {
+                        isCapNhat = object.getBoolean("success");
+                        dsNguoiDung = object.getJSONArray("danhsach");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    ArrayList<NguoiDung> temp = new ArrayList<>();
+
+                    Gson gson = new Gson();
+                    Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
+                    temp = gson.fromJson(String.valueOf(dsNguoiDung), type);
+
+                    if (isCapNhat) {
+                        for (NguoiDung nd : temp) {
+                            if(!lstUser.contains(nd)){
+                                lstUser.add(nd);
+                            }
+                        }
+
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    CapNhatDanhSachLocal(lstUser);
+                }
+            });
+        }
+    };
+
+    private final Emitter.Listener ThongBaoXoaDanhBaListener = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            myActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    boolean isCapNhat = false;
+                    String  SDT = "";
+                    JSONObject object = (JSONObject) args[0];
+
+                    try {
+                        isCapNhat = object.getBoolean("success");
+                        SDT = object.getString("SoDienThoai_Update");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (isCapNhat) {
+                        Xoa_ThongTinNguoiDungLocal(SDT);
+                    }
+                }
+            });
+        }
+    };
 
     protected void Init(){
-        preferences = getActivity().getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
+        preferences = myActivity.getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycleDanhSachBan);
         recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(view.getContext());
+        layoutManager = new LinearLayoutManager(myActivity, RecyclerView.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         btnLoiMoiKetBan = (Button) view.findViewById(R.id.btnLoiMoiKetBan);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_danhba);
@@ -112,8 +210,56 @@ public class DanhBaFragment extends Fragment {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                lstUser.clear();
-                GetDanhSachBan();
+                JSONObject object = new JSONObject();
+
+                try {
+                    object.put("MaNguoiDung_Mot", preferences.getInt("MaNguoiDung" , 0));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                mClient.getmClient().emit("YeuCauCapNhatDanhBa", object);
+
+                mClient.getmClient().on("ThongBaoCapNhatDanhBa", new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        myActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                boolean isCapNhat = false;
+                                JSONArray dsNguoiDung = new JSONArray();
+                                JSONObject object = (JSONObject) args[0];
+
+                                try {
+                                    isCapNhat = object.getBoolean("success");
+                                    dsNguoiDung = object.getJSONArray("danhsach");
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+
+                                ArrayList<NguoiDung> temp = new ArrayList<>();
+
+                                Gson gson = new Gson();
+                                Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
+                                temp = gson.fromJson(String.valueOf(dsNguoiDung), type);
+
+                                if (isCapNhat) {
+                                    for (NguoiDung nd : temp) {
+                                        if(!lstUser.contains(nd)){
+                                            lstUser.add(nd);
+                                        }
+                                    }
+
+                                    adapter.notifyDataSetChanged();
+                                }
+
+                                CapNhatDanhSachLocal(lstUser);
+                            }
+                        });
+                    }
+                });
+
                 refreshLayout.setRefreshing(false);
             }
         });
@@ -123,7 +269,7 @@ public class DanhBaFragment extends Fragment {
         btnLoiMoiKetBan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), DanhSachLoiMoiKetBanActivity.class);
+                Intent intent = new Intent(myActivity, DanhSachLoiMoiKetBanActivity.class);
                 startActivity(intent);
             }
         });
@@ -148,15 +294,27 @@ public class DanhBaFragment extends Fragment {
                                 BanBe banBe = new BanBe();
                                 banBe.setMaNguoiDung_Mot(MaNguoiDung);
                                 banBe.setMaNguoiDung_Hai(lstUser.get(pos).getMaNguoiDung());
-                                lstUser.remove(pos);
                                 Call<Message> call = client.DeleteRequestFriend(banBe);
                                 call.enqueue(new Callback<Message>() {
                                     @Override
                                     public void onResponse(Call<Message> call, Response<Message> response) {
                                         if (response.isSuccessful()){
                                             if (response.body().getSuccess() == 1){
+                                                JSONObject object = new JSONObject();
+
+                                                try {
+                                                    object.put("SoDienThoai_Xoa", lstUser.get(pos).getSoDienThoai());
+                                                    object.put("SoDienThoai_Update", preferences.getString("SoDienThoai", ""));
+                                                } catch (JSONException e) {
+                                                    e.printStackTrace();
+                                                }
+
+                                                mClient.getmClient().emit("XoaDanhBa", object);
                                                 Toast.makeText(view.getContext(), "Xoá thành công", Toast.LENGTH_SHORT).show();
-                                                ShowDanhSach();
+
+                                                lstUser.remove(pos);
+                                                adapter.notifyDataSetChanged();
+                                                CapNhatDanhSachLocal(lstUser);
                                             }
                                         }
                                     }
@@ -187,7 +345,7 @@ public class DanhBaFragment extends Fragment {
     }
 
     protected void ShowDanhSach(){
-        SharedPreferences preferences = getActivity().getSharedPreferences("data_danh_ba", MODE_PRIVATE);
+        SharedPreferences preferences = myActivity.getSharedPreferences("data_danh_ba", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         Gson gson = new Gson();
 
@@ -197,16 +355,6 @@ public class DanhBaFragment extends Fragment {
 
         adapter = new MyAdapter(view.getContext(), lstUser, false);
         recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-
-//        JSONObject object = new JSONObject();
-//        try {
-//            object.put("ThongBao", json);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//        mClient.emit("ThongBaoHienThiDanhBa", object);
     }
 
     protected void GetDanhSachBan(){
@@ -235,6 +383,46 @@ public class DanhBaFragment extends Fragment {
             @Override
             public void onFailure(Call<Message> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void CapNhatDanhSachLocal(ArrayList<NguoiDung> lst){
+        SharedPreferences preferences = myActivity.getSharedPreferences("data_danh_ba", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+
+        String json = gson.toJson(lst);
+        editor.putString("ListUser", json);
+        editor.commit();
+    }
+
+    private void Xoa_ThongTinNguoiDungLocal(String SDT) {
+        String temp = preferences.getString("Token_DangNhap", "");
+        Map<String, String> map = new HashMap<>();
+        map.put("Authorization", ("Bearer " + temp).trim());
+
+        DataClient client = APIUtils.getData();
+        Call<Message> call = client.GetThongTinNguoiDung_bySDT(SDT, map);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess() == 1) {
+                        Toast.makeText(myActivity, "Đang Đồng Bộ...", Toast.LENGTH_SHORT).show();
+                        NguoiDung nguoi_dung_infor = response.body().getData();
+
+                        lstUser.remove(nguoi_dung_infor);
+                        adapter.notifyDataSetChanged();
+
+                        CapNhatDanhSachLocal(lstUser);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+
             }
         });
     }

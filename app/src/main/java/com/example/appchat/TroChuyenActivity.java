@@ -30,6 +30,7 @@ import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.example.appchat.Socket.SocketClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
@@ -49,21 +50,15 @@ public class TroChuyenActivity extends AppCompatActivity {
     ImageButton btnCross;
     Button btnTimBanBe;
     String name = "ThemBanFragment";
-
-    private Socket mClient;{
-        try {
-            mClient = IO.socket("http://192.168.2.45:5000");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
+    SocketClient mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tro_chuyen);
 
-        mClient.connect();
+        mClient = new SocketClient();
+
         Init_SocketIO();
 
         //Ẩn Thanh Trạng Thái
@@ -99,9 +94,8 @@ public class TroChuyenActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        mClient.emit("DangKyNhanThongBaoDanhBa", object);
-
-        mClient.on("ThongBaoLoiMoiKetBanMoi", ThongBaoLoiMoiKetBanListener);
+        mClient.getmClient().emit("DangKyNhanThongBaoDanhBa", object);
+        mClient.getmClient().on("ThongBaoLoiMoiKetBanMoi", ThongBaoLoiMoiKetBanListener);
     }
 
     private Emitter.Listener ThongBaoLoiMoiKetBanListener = new Emitter.Listener() {
@@ -112,17 +106,17 @@ public class TroChuyenActivity extends AppCompatActivity {
                 public void run() {
                     JSONObject object = (JSONObject) args[0];
 
-                    String NguoiGuiLoiMoi = "";
+                    String NguoiGuiLoiMoi_HoTen = "";
 
                     try {
-                        NguoiGuiLoiMoi = object.getString("NguoiGuiLoiMoi");
+                        NguoiGuiLoiMoi_HoTen = object.getString("NguoiGuiLoiMoi_HoTen");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
-                    Toast.makeText(TroChuyenActivity.this, NguoiGuiLoiMoi + " gửi lời mời" , Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(TroChuyenActivity.this, NguoiGuiLoiMoi + " gửi lời mời" , Toast.LENGTH_SHORT).show();
 
-                    ThongBaoLoiMoiKetBan();
+                    ThongBaoLoiMoiKetBan(NguoiGuiLoiMoi_HoTen);
                 }
             });
         }
@@ -248,6 +242,11 @@ public class TroChuyenActivity extends AppCompatActivity {
                 editor.remove("Token_DangNhap");
                 editor.apply();
 
+                preferences = getSharedPreferences("data_danh_ba", MODE_PRIVATE);
+                editor = preferences.edit();
+                editor.remove("ListUser");
+                editor.commit();
+
                 Intent intent = new Intent(TroChuyenActivity.this, SplashScreen.class);
                 startActivity(intent);
                 finish();//<---Nhớ Finish Cái Activity
@@ -296,8 +295,8 @@ public class TroChuyenActivity extends AppCompatActivity {
         }
     }
 
-    private void ThongBaoLoiMoiKetBan(){
-        Intent intent = new Intent(TroChuyenActivity.this, TroChuyenActivity.class);
+    private void ThongBaoLoiMoiKetBan(String NguoiGuiLoiMoi_HoTen){
+        Intent intent = new Intent(TroChuyenActivity.this, DanhSachLoiMoiKetBanActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(TroChuyenActivity.this,
@@ -313,7 +312,7 @@ public class TroChuyenActivity extends AppCompatActivity {
         }
 
         Notification notification = builder.setContentTitle("Zalo Imposter")
-                .setContentText("Có 1 người muốn kết nối với bạn")
+                .setContentText(NguoiGuiLoiMoi_HoTen + " muốn kết nối với bạn")
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.logo_imposter)
                 .setChannelId("Zalo Imposter")

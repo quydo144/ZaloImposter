@@ -7,6 +7,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -25,10 +26,21 @@ import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
+import com.example.appchat.Socket.SocketClient;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Type;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -43,6 +55,8 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
     ImageButton btnBack_LoiMoiKetBan;
     SwipeRefreshLayout refresh_loimoiketban;
 
+    SocketClient mClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +68,8 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
         SwipeHelper();
         SwipeRefresh();
         Back();
+
+        mClient = new SocketClient();
     }
 
     protected void Init() {
@@ -158,6 +174,30 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                     public void onResponse(Call<Message> call, Response<Message> response) {
                         if (response.isSuccessful()){
                             if (response.body().getSuccess() == 1){
+                                JSONObject object = new JSONObject();
+
+                                try {
+                                    object.put("MaNguoiDung_Hai", lstUser.get(position).getMaNguoiDung());
+                                    object.put("SoDienThoai", lstUser.get(position).getSoDienThoai());
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                mClient.getmClient().emit("DaXacNhanLoiMoiKetBan", object);
+
+                                //Cập Nhật Lại Danh Sách Danh Bạ
+                                SharedPreferences preferences = getSharedPreferences("data_danh_ba", MODE_PRIVATE);
+                                String ListUser = preferences.getString("ListUser", "");
+                                Gson gson = new Gson();
+                                Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
+                                ArrayList<NguoiDung> temp = gson.fromJson(ListUser, type);
+
+                                temp.add(lstUser.get(position));
+                                SharedPreferences.Editor editor = preferences.edit();
+                                String json = gson.toJson(temp);
+                                editor.putString("ListUser", json);
+                                editor.commit();
+
                                 lstUser.remove(lstUser.get(position));
                                 Toast.makeText(getApplicationContext(), "Xác nhận thành công", Toast.LENGTH_SHORT).show();
                                 ShowDanhSach();
