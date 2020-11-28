@@ -84,7 +84,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-
+        client_socket.disconnect();
         client_socket.connect();
         client_socket.on("SERVER_GUI_TIN_NHAN", NhanTinNhanServer);
 
