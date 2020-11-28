@@ -62,6 +62,16 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
         Back();
     }
 
+<<<<<<< HEAD
+=======
+    private Socket mClient;{
+        try {
+            mClient = IO.socket("http://192.168.1.8:5000");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+>>>>>>> becf79eae24d9ba9b69b2cfb9a5fce447700a6c9
 
     protected void Init_Data(){
         preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);

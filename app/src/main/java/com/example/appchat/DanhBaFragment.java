@@ -387,6 +387,7 @@ public class DanhBaFragment extends Fragment {
         });
     }
 
+<<<<<<< HEAD
     private void CapNhatDanhSachLocal(ArrayList<NguoiDung> lst){
         SharedPreferences preferences = myActivity.getSharedPreferences("data_danh_ba", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
@@ -426,4 +427,6 @@ public class DanhBaFragment extends Fragment {
             }
         });
     }
+=======
+>>>>>>> becf79eae24d9ba9b69b2cfb9a5fce447700a6c9
 }

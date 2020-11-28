@@ -3,6 +3,7 @@ package com.example.appchat.Retrofit2;
 import com.example.appchat.Models.BanBe;
 import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
+import com.example.appchat.Models.Room;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -59,4 +60,13 @@ public interface DataClient {
 
     @POST("/getlistrequestfriend")
     Call<Message> GetListRequestFriend(@Body BanBe banBe);
+
+    @POST("/addRoom")
+    Call<Message> AddRoomChat(@Body Room room);
+
+    @POST("/deleteRoom")
+    Call<Message> DeleteRoomChat(@Body Room room);
+
+    @POST("/findIdRoom")
+    Call<Message> FindRoomChat(@Body Room room);
 }

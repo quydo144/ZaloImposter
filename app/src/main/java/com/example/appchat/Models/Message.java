@@ -27,6 +27,17 @@ public class Message {
     @SerializedName("danhsach")
     @Expose
     private ArrayList<NguoiDung> danhsach;
+    @SerializedName("id_room")
+    @Expose
+    private String id_room;
+
+    public String getId_room() {
+        return id_room;
+    }
+
+    public void setId_room(String id_room) {
+        this.id_room = id_room;
+    }
 
     public ArrayList<NguoiDung> getDanhsach() {
         return danhsach;

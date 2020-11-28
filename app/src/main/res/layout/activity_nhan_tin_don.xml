@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".NhanTinDonActivity">
+    android:orientation="vertical">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -130,7 +129,7 @@
             android:id="@+id/btn_Tuy_Chon_Chat_Don"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="300dp"
+            android:layout_marginStart="290dp"
             android:background="#016AFF"
             app:layout_constraintStart_toEndOf="@+id/textViewTen"
             app:layout_constraintTop_toTopOf="parent"
