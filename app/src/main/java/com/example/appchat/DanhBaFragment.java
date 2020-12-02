@@ -147,7 +147,6 @@ public class DanhBaFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-
                     ArrayList<NguoiDung> temp = new ArrayList<>();
 
                     Gson gson = new Gson();

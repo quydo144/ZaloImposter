@@ -3,7 +3,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">13.229.207.6</domain>
 
-        <domain includeSubdomains="true">54.179.131.22</domain>
+        <domain includeSubdomains="true">192.168.1.9</domain>   //Local
 
         <domain includeSubdomains="true">13.250.34.4</domain>
 

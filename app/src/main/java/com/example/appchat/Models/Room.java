@@ -17,6 +17,18 @@ public class Room implements Serializable {
     @Expose
     private int id_user_2;
 
+    public int getItemLast() {
+        return itemLast;
+    }
+
+    public void setItemLast(int itemLast) {
+        this.itemLast = itemLast;
+    }
+
+    @SerializedName("itemLast")
+    @Expose
+    private int itemLast;
+
     public String getId_room() {
         return id_room;
     }

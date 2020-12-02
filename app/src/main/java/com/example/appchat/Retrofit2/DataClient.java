@@ -1,6 +1,7 @@
 package com.example.appchat.Retrofit2;
 
 import com.example.appchat.Models.BanBe;
+import com.example.appchat.Models.DataMessage;
 import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Models.Room;
@@ -69,4 +70,13 @@ public interface DataClient {
 
     @POST("/findIdRoom")
     Call<Message> FindRoomChat(@Body Room room);
+
+    @POST("/createTable")
+    Call<Message> CreateTable(@Body Room room);
+
+    @POST("/scanFirstItemMessage")
+    Call<DataMessage> ScanFirstItemMessage(@Body Room room);
+
+    @POST("/scanItemMessage")
+    Call<DataMessage> ScanItemMessage(@Body Room room);
 }
