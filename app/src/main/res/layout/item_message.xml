@@ -9,7 +9,7 @@
 
     <LinearLayout
         android:id="@+id/container_nguoi_nhan"
-        android:padding="8dp"
+        android:padding="12dp"
         android:orientation="vertical"
         android:background="@drawable/text_nguoi_gui"
         android:layout_width="wrap_content"
@@ -36,27 +36,27 @@
                 android:id="@+id/tvTenNhan"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
+                android:textSize="16sp"
+                android:fontFamily="@font/rubik_medium"
                 android:paddingTop="5dp"
                 android:textStyle="bold"
                 android:textAlignment="textStart"
                 android:paddingBottom="5dp"
                 android:paddingStart="5dp"
                 android:paddingEnd="15dp"
-                android:textColor="#000"
+                android:textColor="#016aff"
                 android:text="Server" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/tvNhan"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="18sp"
+            android:fontFamily="@font/rubik_medium"
             android:paddingTop="5dp"
-            android:textAlignment="textStart"
+            android:layout_marginTop="5dp"
             android:paddingBottom="5dp"
-            android:paddingStart="15dp"
-            android:paddingEnd="15dp"
             android:textColor="#000"
             android:text="TextView" />
     </LinearLayout>
@@ -66,12 +66,13 @@
     <TextView
         android:id="@+id/tvGui"
         android:layout_gravity="end"
-        android:textColor="#000"
+        android:textColor="#fff"
+        android:fontFamily="@font/rubik_medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
+        android:textSize="18sp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
         android:paddingStart="15dp"
         android:paddingEnd="15dp"
         android:background="@drawable/text_nguoi_nhan"

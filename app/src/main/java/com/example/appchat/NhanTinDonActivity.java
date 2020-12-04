@@ -1,6 +1,7 @@
 package com.example.appchat;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -8,12 +9,18 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.appchat.Adapter.NhanTinAdapter;
 import com.example.appchat.Models.DataMessage;
@@ -23,9 +30,9 @@ import com.example.appchat.Models.NhanTin;
 import com.example.appchat.Models.Room;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
+import com.example.appchat.Socket.SocketChat;
+import com.github.ybq.android.spinkit.sprite.Sprite;
+import com.github.ybq.android.spinkit.style.ThreeBounce;
 
 
 import org.json.JSONException;
@@ -37,17 +44,23 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import io.socket.emitter.Emitter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class NhanTinDonActivity extends AppCompatActivity {
 
-    Socket client_socket;
+
+    SocketChat client_socket;
     ImageButton btnGui_Chat, btnTuyChon, btnBack_DanhBa, btnGuiTinNhan_File, btnGuiTinNhan_Hinh;
     EditText edtNhanTin;
-    TextView tvTenNguoiNhan;
+    TextView tvTenNguoiNhan, tvNguoiNhanTyping;
     RecyclerView recycleTinNhan;
+    ProgressBar prgbr_isTyping;
+
+    ConstraintLayout container_isTyping;
+
     ArrayList<NhanTin> listNhanTin;
     NhanTinAdapter nhanTinAdapter;
     SharedPreferences preferences;
@@ -60,13 +73,60 @@ public class NhanTinDonActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nhan_tin_don);
+        client_socket = new SocketChat();
+
+        //Ẩn Thanh Trạng Thái
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         Init();
         Back_DanhBa();
-        InitSocket();
         CheckRoom();
         SendMessage();
         TuyChon();
 
+        //Lắng Nghe Người Dùng Nhập Dữ Liệu
+        edtNhanTin_TextChanged();
+
+        ListenSocketFromServer();
+    }
+
+    private void edtNhanTin_TextChanged() {
+        edtNhanTin.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(edtNhanTin.length() == 0){
+                    btnGui_Chat.setVisibility(View.GONE);
+                    btnGuiTinNhan_Hinh.setVisibility(View.VISIBLE);
+                    btnGuiTinNhan_File.setVisibility(View.VISIBLE);
+                }else {
+                    btnGui_Chat.setVisibility(View.VISIBLE);
+                    btnGuiTinNhan_Hinh.setVisibility(View.GONE);
+                    btnGuiTinNhan_File.setVisibility(View.GONE);
+                }
+
+                JSONObject jsonObject = new JSONObject();
+
+                try {
+                    jsonObject.put("id_room", id_room);
+                    jsonObject.put("id_user_01", id_user_1);
+                    jsonObject.put("id_user_02", id_user_2);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                client_socket.getmClient().emit("CLIENT_TYPING", jsonObject);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     protected void Init() {
@@ -82,20 +142,28 @@ public class NhanTinDonActivity extends AppCompatActivity {
         recycleTinNhan.setLayoutManager(layoutManager);
         edtNhanTin = (EditText) findViewById(R.id.edtTinNhan_Don);
         btnGui_Chat = (ImageButton) findViewById(R.id.btn_Gui_Tin_Nhan_Don);
+        btnGuiTinNhan_Hinh = (ImageButton) findViewById(R.id.btn_Gui_Hinh_Don);
+        btnGuiTinNhan_File = (ImageButton) findViewById(R.id.btn_Gui_Link_Don);
         btnTuyChon = findViewById(R.id.btn_Tuy_Chon_Chat_Don);
         btnBack_DanhBa = findViewById(R.id.btnBack_Fragment_Tro_Chuyen);
+
+        tvTenNguoiNhan = findViewById(R.id.tvTenNguoiNhan);
+        tvTenNguoiNhan.setText(ten);
+
+        tvNguoiNhanTyping = findViewById(R.id.tvNguoiNhanDangGo);
+        tvNguoiNhanTyping.setText(ten + " đang nhập ");
+
+        prgbr_isTyping = findViewById(R.id.prgbr_isTyping);
+        Sprite threeBounce = new ThreeBounce();
+        prgbr_isTyping.setIndeterminateDrawable(threeBounce);
+
+        container_isTyping = findViewById(R.id.container_isTyping);
     }
 
-    protected void InitSocket() {
-        try {
-            client_socket = IO.socket("http://192.168.1.9:6000");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        client_socket.disconnect();
-        client_socket.connect();
-        client_socket.on("SERVER_GUI_TIN_NHAN", NhanTinNhanServer);
-
+    //Lắng Nghe Các Event Trả Về Từ Server
+    private void ListenSocketFromServer(){
+        client_socket.getmClient().on("SERVER_GUI_TIN_NHAN", NhanTinNhanServer);
+        client_socket.getmClient().on("SERVER_IS_TYPING", SenderIsTyping);
     }
 
     private void CheckTableChat(){
@@ -106,6 +174,9 @@ public class NhanTinDonActivity extends AppCompatActivity {
         call.enqueue(new Callback<Message>() {
             @Override
             public void onResponse(Call<Message> call, Response<Message> response) {
+                if(response.isSuccessful()){
+
+                }
             }
 
             @Override
@@ -145,7 +216,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     }
                     CheckTableChat();
                     LoadTinNhan();
-                    client_socket.emit("DANG_KY_PHONG", object);
+                    client_socket.getmClient().emit("DANG_KY_PHONG", object);
                 }
             }
 
@@ -192,7 +263,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                client_socket.emit("CLIENT_GUI_TIN_NHAN", object);
+                client_socket.getmClient().emit("CLIENT_GUI_TIN_NHAN", object);
                 nhanTinAdapter.notifyDataSetChanged();
                 recycleTinNhan.scrollToPosition(listNhanTin.size() - 1);
                 edtNhanTin.setText("");
@@ -214,11 +285,13 @@ public class NhanTinDonActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(NhanTinDonActivity.this, TuyChonChatActivity.class);
+                intent.putExtra("Sender", ten);
                 startActivity(intent);
             }
         });
     }
 
+    //Lắng Nghe Tin Nhắn Từ Sever
     private Emitter.Listener NhanTinNhanServer = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -240,6 +313,8 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     listNhanTin.add(new NhanTin("", tinNhan_Gui));
                     nhanTinAdapter.notifyDataSetChanged();
                     recycleTinNhan.scrollToPosition(listNhanTin.size() - 1);
+
+                    container_isTyping.setVisibility(View.GONE);
                 }
             });
         }
@@ -274,4 +349,30 @@ public class NhanTinDonActivity extends AppCompatActivity {
             }
         });
     }
+
+    //Lắng Nghe Event Typing Sender
+    private Emitter.Listener SenderIsTyping = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    container_isTyping.setVisibility(View.VISIBLE);
+
+                    CountDownTimer timer = new CountDownTimer(5000,1000) {
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            container_isTyping.setVisibility(View.GONE);
+                        }
+                    };
+                    timer.start();
+                }
+            });
+        }
+    };
 }

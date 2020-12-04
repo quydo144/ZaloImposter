@@ -1,6 +1,7 @@
 package com.example.appchat.Retrofit2;
 
 import com.example.appchat.Models.BanBe;
+import com.example.appchat.Models.ConversationMap;
 import com.example.appchat.Models.DataMessage;
 import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
@@ -34,6 +35,9 @@ public interface DataClient {
 
     @GET("/sdt={sdt}")
     Call<Message> GetThongTinNguoiDung_bySDT(@Path("sdt") String sdt, @HeaderMap Map<String, String> token);
+
+    @GET("/id={id}")
+    Call<Message> GetThongTinNguoiDung_byID(@Path("id") int id, @HeaderMap Map<String, String> token);
 
     @PATCH("/")
     Call<Message> SuaThongTin(@Body NguoiDung nguoiDung, @HeaderMap Map<String, String> token);
@@ -79,4 +83,7 @@ public interface DataClient {
 
     @POST("/scanItemMessage")
     Call<DataMessage> ScanItemMessage(@Body Room room);
+
+    @GET("/getAllRoom/id={id}")
+    Call<ArrayList<ConversationMap>> GetAllConversationFor_A_User(@Path("id") int id);
 }

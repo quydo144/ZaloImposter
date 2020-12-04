@@ -99,10 +99,7 @@ public class DangNhapActivity extends AppCompatActivity {
                                 editor.putString("MatKhau", MatKhau);
                                 editor.putString("Token_DangNhap", message.getToken());
                                 editor.apply();
-                                Intent intent = new Intent(DangNhapActivity.this, TroChuyenActivity.class);
-                                startActivity(intent);
                                 GetMaNguoiDung();
-                                finish();
                             }else {
                                 Toast.makeText(DangNhapActivity.this,"Đăng Nhập Thất Bại", Toast.LENGTH_SHORT).show();
                             }
@@ -136,8 +133,11 @@ public class DangNhapActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = preferences.edit();
                             int mnd = nguoi_dung_infor.getMaNguoiDung();
                             editor.putInt("MaNguoiDung", mnd);
-                            Log.e("Giá trị", mnd + "");
                             editor.apply();
+
+                            Intent intent = new Intent(DangNhapActivity.this, TroChuyenActivity.class);
+                            startActivity(intent);
+                            finish();
                         }
                     }
                 }

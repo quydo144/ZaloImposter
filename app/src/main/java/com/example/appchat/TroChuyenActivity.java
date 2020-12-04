@@ -30,20 +30,33 @@ import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.example.appchat.Adapter.MyAdapter;
+import com.example.appchat.Models.BanBe;
+import com.example.appchat.Models.Message;
+import com.example.appchat.Models.NguoiDung;
+import com.example.appchat.Retrofit2.APIUtils;
+import com.example.appchat.Retrofit2.DataClient;
+import com.example.appchat.Socket.SocketChat;
 import com.example.appchat.Socket.SocketClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class TroChuyenActivity extends AppCompatActivity {
+    SharedPreferences preferences_login;
     Fragment selectedFragment;
     BottomNavigationView bottomNav;
     ImageButton btnSettings_Profile;
@@ -51,6 +64,9 @@ public class TroChuyenActivity extends AppCompatActivity {
     Button btnTimBanBe;
     String name = "ThemBanFragment";
     SocketClient mClient;
+    SocketChat cClient;
+
+    ArrayList<NguoiDung> ListFriend = new ArrayList<>();
 
 
     @Override
@@ -59,6 +75,7 @@ public class TroChuyenActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tro_chuyen);
 
         mClient = new SocketClient();
+        cClient = new SocketChat();
         Init_SocketIO();
 
         //Ẩn Thanh Trạng Thái
@@ -72,6 +89,9 @@ public class TroChuyenActivity extends AppCompatActivity {
         //Set Fragment Mặc Định Sẽ Mở Khi Load Activity
         selectedFragment = new TroChuyenFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_main, selectedFragment).commit();
+
+        //Cập Nhật Danh Sách Bạn Bè Mới
+        GetNewDanhSachBanBe();
     }
 
     private void Init_Data() {
@@ -80,6 +100,8 @@ public class TroChuyenActivity extends AppCompatActivity {
         btnSettings_Profile = (ImageButton) findViewById(R.id.btnSettings_Profile);
         btnCross = (ImageButton) findViewById(R.id.btnCross);
         btnTimBanBe = (Button) findViewById(R.id.btnTimBanBe);
+
+        preferences_login = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
     }
 
     private void Init_SocketIO(){
@@ -243,6 +265,11 @@ public class TroChuyenActivity extends AppCompatActivity {
                 editor.remove("ListUser");
                 editor.commit();
 
+                preferences = getSharedPreferences("data_conversations", MODE_PRIVATE);
+                editor = preferences.edit();
+                editor.remove("Conversations");
+                editor.commit();
+
                 Intent intent = new Intent(TroChuyenActivity.this, SplashScreen.class);
                 startActivity(intent);
                 finish();//<---Nhớ Finish Cái Activity
@@ -322,5 +349,78 @@ public class TroChuyenActivity extends AppCompatActivity {
         }
 
         notificationManager.notify(1, notification);
+    }
+
+    private void ThongBaoTinNhan(String TenNguoiGuiTinNhan){
+        Intent intent = new Intent(TroChuyenActivity.this, DanhSachLoiMoiKetBanActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(TroChuyenActivity.this,
+                0, intent, PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(TroChuyenActivity.this);
+
+        NotificationChannel channel = null;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            channel = new NotificationChannel("Zalo Imposter","Zalo Imposter", NotificationManager.IMPORTANCE_HIGH);
+        }
+
+        Notification notification = builder.setContentTitle("Zalo Imposter")
+                .setContentText("Bạn Có 1 Tin Nhắn Mới")
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.logo_imposter)
+                .setChannelId("Zalo Imposter")
+                .setContentIntent(pendingIntent)
+                .build();
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        notificationManager.notify(1, notification);
+    }
+
+    //Cập Nhật Danh Sách Bạn Bè Mới Nhất
+    protected void GetNewDanhSachBanBe(){
+        int MaNguoiDung = preferences_login.getInt("MaNguoiDung" , 0);
+        DataClient client = APIUtils.getData();
+        BanBe banBe = new BanBe();
+        banBe.setMaNguoiDung_Mot(MaNguoiDung);
+        Call<Message> call = client.GetListFriend(banBe);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess() == 1) {
+                        for (NguoiDung user : response.body().getDanhsach()){
+                            if (user.isStatus()){
+                                ListFriend.add(user);
+                            }
+                        }
+
+                        UpdateNewListFriendToLocal();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+            }
+        });
+    }
+
+    //Cập Nhật Danh Sách Bạn Bè Mới Nhất
+    protected void UpdateNewListFriendToLocal(){
+        SharedPreferences preferences = getSharedPreferences("data_danh_ba", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+
+        String json = gson.toJson(ListFriend);
+        editor.putString("ListUser", json);
+        editor.commit();
     }
 }
