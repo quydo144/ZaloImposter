@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,10 +50,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
 public class DanhBaFragment extends Fragment {
-    int CountSwipe = 1;
 
     ArrayList<NguoiDung> lstUser = new ArrayList<>();
     View view;
@@ -64,12 +65,15 @@ public class DanhBaFragment extends Fragment {
     Button btnLoiMoiKetBan;
     SwipeRefreshLayout refreshLayout;
     ProgressBar progressBar;
-
     SocketClient mClient;
+
+    public void get(){
+        Log.e("danhba", "1");
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_danh_ba,container,false);
+        view = inflater.inflate(R.layout.fragment_danh_ba, container, false);
         mClient = new SocketClient();
         myActivity = getActivity();
 
@@ -81,11 +85,13 @@ public class DanhBaFragment extends Fragment {
         SharedPreferences preferences = myActivity.getSharedPreferences("data_danh_ba", MODE_PRIVATE);
         String ListUser = preferences.getString("ListUser", "");
 
-        if(ListUser.equals("")){
+        SwipeHelper();
+        if (ListUser.equals("")) {
             GetDanhSachBan();
-        }else{
+        } else {
             Gson gson = new Gson();
-            Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
+            Type type = new TypeToken<ArrayList<NguoiDung>>() {
+            }.getType();
             lstUser = gson.fromJson(ListUser, type);
 
             adapter = new MyAdapter(myActivity, lstUser, false);
@@ -98,14 +104,13 @@ public class DanhBaFragment extends Fragment {
         //Nhận Thông Báo Xoá Danh Bạ
         mClient.getmClient().on("ThongBaoXoaDanhBa", ThongBaoXoaDanhBaListener);
 
-        SwipeHelper();
         LoiMoiKetBan_Click();
         SwipeRefreshLayout();
 
         return view;
     }
 
-    private void Init_Socket(){
+    private void Init_Socket() {
         SharedPreferences preferences = myActivity.getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         String SoDienThoai = preferences.getString("SoDienThoai", "");
         JSONObject object = new JSONObject();
@@ -135,23 +140,23 @@ public class DanhBaFragment extends Fragment {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                     ArrayList<NguoiDung> temp = new ArrayList<>();
-
                     Gson gson = new Gson();
-                    Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
+                    Type type = new TypeToken<ArrayList<NguoiDung>>() {
+                    }.getType();
                     temp = gson.fromJson(String.valueOf(dsNguoiDung), type);
 
                     if (isCapNhat) {
                         for (NguoiDung nd : temp) {
-                            if(!lstUser.contains(nd)){
+                            if (!lstUser.contains(nd)) {
                                 lstUser.add(nd);
                             }
                         }
-
-                        adapter.notifyDataSetChanged();
+                        if (lstUser.size() != 1)
+                            adapter.notifyDataSetChanged();
+                        else
+                            ShowDanhSach();
                     }
-
                     CapNhatDanhSachLocal(lstUser);
                 }
             });
@@ -165,7 +170,7 @@ public class DanhBaFragment extends Fragment {
                 @Override
                 public void run() {
                     boolean isCapNhat = false;
-                    String  SDT = "";
+                    String SDT = "";
                     JSONObject object = (JSONObject) args[0];
 
                     try {
@@ -183,7 +188,7 @@ public class DanhBaFragment extends Fragment {
         }
     };
 
-    protected void Init(){
+    protected void Init() {
         preferences = myActivity.getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycleDanhSachBan);
         recyclerView.setHasFixedSize(true);
@@ -194,66 +199,78 @@ public class DanhBaFragment extends Fragment {
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
     }
 
-    protected void SwipeRefreshLayout(){
+    protected void SwipeRefreshLayout() {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                JSONObject object = new JSONObject();
-
-                try {
-                    object.put("MaNguoiDung_Mot", preferences.getInt("MaNguoiDung" , 0));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                mClient.getmClient().emit("YeuCauCapNhatDanhBa", object);
-
-                mClient.getmClient().on("ThongBaoCapNhatDanhBa", new Emitter.Listener() {
+                progressBar.setVisibility(View.VISIBLE);
+                int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
+                DataClient client = APIUtils.getData();
+                BanBe banBe = new BanBe();
+                banBe.setMaNguoiDung_Mot(MaNguoiDung);
+                Call<Message> call = client.GetListFriend(banBe);
+                call.enqueue(new Callback<Message>() {
                     @Override
-                    public void call(Object... args) {
-                        myActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                boolean isCapNhat = false;
-                                JSONArray dsNguoiDung = new JSONArray();
-                                JSONObject object = (JSONObject) args[0];
-
-                                try {
-                                    isCapNhat = object.getBoolean("success");
-                                    dsNguoiDung = object.getJSONArray("danhsach");
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-
-                                ArrayList<NguoiDung> temp = new ArrayList<>();
-
-                                Gson gson = new Gson();
-                                Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
-                                temp = gson.fromJson(String.valueOf(dsNguoiDung), type);
-
-                                if (isCapNhat) {
-                                    for (NguoiDung nd : temp) {
-                                        if(!lstUser.contains(nd)){
-                                            lstUser.add(nd);
+                    public void onResponse(Call<Message> call, Response<Message> response) {
+                        if (response.isSuccessful()) {
+                            progressBar.setVisibility(View.GONE);
+                            if (response.body().getSuccess() == 1) {
+                                for (NguoiDung user : response.body().getDanhsach()) {
+                                    if (user.isStatus()) {
+                                        if (!lstUser.contains(user)) {
+                                            lstUser.add(user);
                                         }
                                     }
-
-                                    adapter.notifyDataSetChanged();
                                 }
-
+                                adapter.notifyDataSetChanged();
                                 CapNhatDanhSachLocal(lstUser);
                             }
-                        });
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Message> call, Throwable t) {
+                        progressBar.setVisibility(View.GONE);
                     }
                 });
-
                 refreshLayout.setRefreshing(false);
             }
         });
     }
 
-    protected void LoiMoiKetBan_Click(){
+    @Override
+    public void onResume() {
+        int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
+        DataClient client = APIUtils.getData();
+        BanBe banBe = new BanBe();
+        banBe.setMaNguoiDung_Mot(MaNguoiDung);
+        Call<Message> call = client.GetListFriend(banBe);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess() == 1) {
+                        for (NguoiDung user : response.body().getDanhsach()) {
+                            if (user.isStatus()) {
+                                if (!lstUser.contains(user)) {
+                                    lstUser.add(user);
+                                }
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                        CapNhatDanhSachLocal(lstUser);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+            }
+        });
+        super.onResume();
+    }
+
+    protected void LoiMoiKetBan_Click() {
         btnLoiMoiKetBan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -263,11 +280,11 @@ public class DanhBaFragment extends Fragment {
         });
     }
 
-    protected void SwipeHelper(){
+    protected void SwipeHelper() {
         SwipeHelper swipeHelper = new SwipeHelper(view.getContext(), recyclerView, 200) {
             @Override
             public void instantiateMyButton(RecyclerView.ViewHolder viewHolder, List<MyButton> buffer) {
-                MyButton temp = new MyButton(view.getContext(),"", 0, R.drawable.ic_baseline_delete_24, Color.parseColor("#FF3c30"), new MyButtonClickListener() {
+                MyButton temp = new MyButton(view.getContext(), "", 0, R.drawable.ic_baseline_delete_24, Color.parseColor("#FF3c30"), new MyButtonClickListener() {
                     @Override
                     public void onClick(int pos) {
                         AlertDialog.Builder dialog = new AlertDialog.Builder(view.getContext());
@@ -277,7 +294,7 @@ public class DanhBaFragment extends Fragment {
                         dialog.setPositiveButton("Có", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
+                                int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
                                 DataClient client = APIUtils.getData();
                                 BanBe banBe = new BanBe();
                                 banBe.setMaNguoiDung_Mot(MaNguoiDung);
@@ -286,8 +303,8 @@ public class DanhBaFragment extends Fragment {
                                 call.enqueue(new Callback<Message>() {
                                     @Override
                                     public void onResponse(Call<Message> call, Response<Message> response) {
-                                        if (response.isSuccessful()){
-                                            if (response.body().getSuccess() == 1){
+                                        if (response.isSuccessful()) {
+                                            if (response.body().getSuccess() == 1) {
                                                 JSONObject object = new JSONObject();
 
                                                 try {
@@ -332,7 +349,7 @@ public class DanhBaFragment extends Fragment {
         };
     }
 
-    protected void ShowDanhSach(){
+    protected void ShowDanhSach() {
         SharedPreferences preferences = myActivity.getSharedPreferences("data_danh_ba", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         Gson gson = new Gson();
@@ -345,9 +362,9 @@ public class DanhBaFragment extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
-    protected void GetDanhSachBan(){
+    protected void GetDanhSachBan() {
         progressBar.setVisibility(View.VISIBLE);
-        int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
+        int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
         DataClient client = APIUtils.getData();
         BanBe banBe = new BanBe();
         banBe.setMaNguoiDung_Mot(MaNguoiDung);
@@ -358,8 +375,8 @@ public class DanhBaFragment extends Fragment {
                 if (response.isSuccessful()) {
                     progressBar.setVisibility(View.GONE);
                     if (response.body().getSuccess() == 1) {
-                        for (NguoiDung user : response.body().getDanhsach()){
-                            if (user.isStatus()){
+                        for (NguoiDung user : response.body().getDanhsach()) {
+                            if (user.isStatus()) {
                                 lstUser.add(user);
                             }
                         }
@@ -375,15 +392,16 @@ public class DanhBaFragment extends Fragment {
         });
     }
 
-    private void CapNhatDanhSachLocal(ArrayList<NguoiDung> lst){
+    private void CapNhatDanhSachLocal(ArrayList<NguoiDung> lst) {
         SharedPreferences preferences = myActivity.getSharedPreferences("data_danh_ba", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         Gson gson = new Gson();
-
         String json = gson.toJson(lst);
         editor.putString("ListUser", json);
         editor.commit();
     }
+
+
 
     private void Xoa_ThongTinNguoiDungLocal(String SDT) {
         String temp = preferences.getString("Token_DangNhap", "");

@@ -7,6 +7,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import com.example.appchat.Helper.SwipeHelper;
 import com.example.appchat.Models.BanBe;
 import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
+import com.example.appchat.Models.Room;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
 import com.example.appchat.Socket.SocketClient;
@@ -50,6 +52,9 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
     ImageButton btnBack_LoiMoiKetBan;
     SwipeRefreshLayout refresh_loimoiketban;
     SocketClient mClient;
+    String id_room = "";
+    int id_user_2 = 0;
+    int id_user_1 = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,6 +172,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                     public void onResponse(Call<Message> call, Response<Message> response) {
                         if (response.isSuccessful()){
                             if (response.body().getSuccess() == 1){
+                                CheckRoom(position);
                                 JSONObject object = new JSONObject();
 
                                 try {
@@ -203,6 +209,78 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
 
                     }
                 });
+            }
+        });
+    }
+
+    private void CreateTableChat(){
+        DataClient client = APIUtils.getDataDemo();
+        Room room = new Room();
+        room.setId_room(id_room);
+        Call<Message> call = client.CreateTable(room);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if(response.isSuccessful()){
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void CheckRoom(int position) {
+        String soDienThoai = preferences.getString("SoDienThoai", "");
+        String sdt = lstUser.get(position).getSoDienThoai();
+        String id_room_sdt = sdt.concat(soDienThoai);
+
+        id_user_2 = lstUser.get(position).getMaNguoiDung();
+        id_user_1 = preferences.getInt("MaNguoiDung", 0);
+        Room room = new Room();
+        room.setId_user_1(id_user_1);
+        room.setId_user_2(id_user_2);
+        DataClient client = APIUtils.getData();
+        Call<Message> call = client.FindRoomChat(room);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess() == 1) {
+                        id_room = response.body().getId_room();
+                    } else {
+                        room.setId_room(id_room_sdt);
+                        AddRoom(room);
+                    }
+                    CreateTableChat();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void AddRoom(Room room) {
+        DataClient client = APIUtils.getData();
+        Call<Message> call = client.AddRoomChat(room);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccessful())
+                    if (response.body().getSuccess() == 1) {
+                        id_room = room.getId_room();
+                    }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+
             }
         });
     }

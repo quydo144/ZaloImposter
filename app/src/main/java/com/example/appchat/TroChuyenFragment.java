@@ -63,19 +63,6 @@ public class TroChuyenFragment extends Fragment {
 
         GetAllConversations();
 
-        /*
-        String lstChattings = preferences_chatting.getString("Conversations", "");
-
-        if(lstChattings.equals("")){
-            GetAllConversations();
-        }else {
-            Gson gson = new Gson();
-            Type type = new TypeToken<ArrayList<ConversationMap>>() {}.getType();
-            Conversations = gson.fromJson(lstChattings, type);
-
-            Load_Data_To_RecylerView(Conversations);
-        }*/
-
         return view;
     }
 

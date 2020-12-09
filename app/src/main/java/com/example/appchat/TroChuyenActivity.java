@@ -321,7 +321,6 @@ public class TroChuyenActivity extends AppCompatActivity {
     private void ThongBaoLoiMoiKetBan(String NguoiGuiLoiMoi_HoTen){
         Intent intent = new Intent(TroChuyenActivity.this, DanhSachLoiMoiKetBanActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
         PendingIntent pendingIntent = PendingIntent.getActivity(TroChuyenActivity.this,
                 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
         );

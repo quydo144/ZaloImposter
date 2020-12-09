@@ -166,30 +166,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
         client_socket.getmClient().on("SERVER_IS_TYPING", SenderIsTyping);
     }
 
-    private void CheckTableChat(){
-        DataClient client = APIUtils.getDataDemo();
-        Room room = new Room();
-        room.setId_room(id_room);
-        Call<Message> call = client.CreateTable(room);
-        call.enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-                if(response.isSuccessful()){
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Message> call, Throwable t) {
-
-            }
-        });
-    }
-
     private void CheckRoom() {
-        String soDienThoai = preferences.getString("SoDienThoai", "");
-        String sdt = getIntent().getStringExtra("sdt");
-        String id_room_sdt = sdt.concat(soDienThoai);
 
         id_user_2 = getIntent().getIntExtra("id_user", 0);
         id_user_1 = preferences.getInt("MaNguoiDung", 0);
@@ -204,9 +181,6 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     if (response.body().getSuccess() == 1) {
                         id_room = response.body().getId_room();
-                    } else {
-                        room.setId_room(id_room_sdt);
-                        AddRoom(room);
                     }
                     JSONObject object = new JSONObject();
                     try {
@@ -214,29 +188,9 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    CheckTableChat();
                     LoadTinNhan();
                     client_socket.getmClient().emit("DANG_KY_PHONG", object);
                 }
-            }
-
-            @Override
-            public void onFailure(Call<Message> call, Throwable t) {
-
-            }
-        });
-    }
-
-    private void AddRoom(Room room) {
-        DataClient client = APIUtils.getData();
-        Call<Message> call = client.AddRoomChat(room);
-        call.enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-                if (response.isSuccessful())
-                    if (response.body().getSuccess() == 1) {
-                        id_room = room.getId_room();
-                    }
             }
 
             @Override
