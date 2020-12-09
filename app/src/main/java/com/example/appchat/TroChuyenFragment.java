@@ -3,6 +3,7 @@ package com.example.appchat;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -132,30 +133,38 @@ public class TroChuyenFragment extends Fragment {
     //Set Thông Tin Người Nhận Tin Nhắn Cho 1 Cuộc Trò Chuyện
     private void PutDataUserToChattingList(ArrayList<ConversationMap> temp) {
         String ListUser = preferences_contact.getString("ListUser", "");
-        Gson gson = new Gson();
-        Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
-        ArrayList<NguoiDung> ListFriend = gson.fromJson(ListUser, type);
+        if (!ListUser.equals("")){
+            Gson gson = new Gson();
+            Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
+            ArrayList<NguoiDung> ListFriend = gson.fromJson(ListUser, type);
+            for (ConversationMap cm : temp) {
+                if(id_user == cm.getIdUser1()){
+                    for (NguoiDung nd : ListFriend) {
+                        if(nd.getMaNguoiDung() == cm.getIdUser2()){
+                            cm.setSender(nd);
+                        }
+                    }
+                }
+                if(id_user == cm.getIdUser2()){
+                    for (NguoiDung nd : ListFriend) {
+                        if(nd.getMaNguoiDung() == cm.getIdUser1()){
+                            cm.setSender(nd);
+                        }
+                    }
+                }
+            }
+            ArrayList<ConversationMap> list = new ArrayList<>();
+            for (ConversationMap map : temp){
+                //Chats.get(position).getSender() != null
+                if (map.getSender() != null){
+                    list.add(map);
+                }
+            }
 
-        for (ConversationMap cm : temp) {
-            if(id_user == cm.getIdUser1()){
-                for (NguoiDung nd : ListFriend) {
-                    if(nd.getMaNguoiDung() == cm.getIdUser2()){
-                        cm.setSender(nd);
-                    }
-                }
-            }
-            if(id_user == cm.getIdUser2()){
-                for (NguoiDung nd : ListFriend) {
-                    if(nd.getMaNguoiDung() == cm.getIdUser1()){
-                        cm.setSender(nd);
-                    }
-                }
-            }
+            Conversations = list;
+
+            PushDataToLocal();
+            Load_Data_To_RecylerView(Conversations);
         }
-
-        Conversations = temp;
-
-        PushDataToLocal();
-        Load_Data_To_RecylerView(Conversations);
     }
 }
