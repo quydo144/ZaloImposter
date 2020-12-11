@@ -71,7 +71,16 @@
             android:adjustViewBounds ="true"
             tools:srcCompat="@tools:sample/avatars" />
 
+        <Button
+            android:id="@+id/btnFile_TaiNhan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#fff"
+            android:visibility="gone"
+            android:text="file"
+            android:textAllCaps="false"/>
     </LinearLayout>
+
 
     <TextView
         android:id="@+id/tvGui"
@@ -101,5 +110,15 @@
 
         android:adjustViewBounds ="true"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <Button
+        android:id="@+id/btnFile_TaiGui"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/text_nguoi_nhan"
+        android:text="file"
+        android:layout_gravity="right"
+        android:textAllCaps="false"
+        android:visibility="gone"/>
 
 </LinearLayout>
