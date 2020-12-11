@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +23,7 @@ public class Adapter_Nhom extends RecyclerView.Adapter<Adapter_Nhom.MyViewHolder
     ArrayList<NguoiDung> checkedNguoiDung= new ArrayList<>();
     SharedPreferences preferences;
     boolean statusBanBe;
+    TextView nameUser_chatNhom;
     OnMultiClickCheckBoxListener onListener;
 
     public void setOnMultiClickCheckBoxListener(OnMultiClickCheckBoxListener onListener){
@@ -58,6 +60,7 @@ public class Adapter_Nhom extends RecyclerView.Adapter<Adapter_Nhom.MyViewHolder
                 }
             }
         });
+        this.nameUser_chatNhom.setText(itemNguoiDung.get(position).getHoTen());
     }
 
     @Override
@@ -71,6 +74,7 @@ public class Adapter_Nhom extends RecyclerView.Adapter<Adapter_Nhom.MyViewHolder
         public MyViewHolderNhom(@NonNull View itemView, OnMultiClickCheckBoxListener onListener) {
             super(itemView);
             this.checkBoxThemBan= itemView.findViewById(R.id.checkBox_themBanVaoNhom);
+            nameUser_chatNhom= itemView.findViewById(R.id.nameUser_chatNhom);
         }
 
         @Override

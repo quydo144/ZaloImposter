@@ -50,10 +50,11 @@ public class TaoNhomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tao_nhom);
+
         ban_be_info = new BanBe();
         lstUser.clear();
         init_Data();
-        TextChange();
+        //TextChange();
         GetDanhSachBan();
         backFragmentNhom_Click();
     }
@@ -68,15 +69,18 @@ public class TaoNhomActivity extends AppCompatActivity {
     }
 
     protected void init_Data() {
-        preferences = getSharedPreferences("data_dangnhap", MODE_PRIVATE);
+        preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
+
+        txtSDT = findViewById(R.id.txtTimSoDienThoai);
         btnBackNhom = (ImageButton) findViewById(R.id.btnBack_FragmentNhom);
         btnDongYTaoNhom = (ImageButton) findViewById(R.id.btnXac_Nhan_Tao_Nhom);
         tenNhom = (TextView) findViewById(R.id.txtDatTenNhom);
         SDT = preferences.getString("SoDienThoai", "");
+
         recycleDSNhom_Tao = (RecyclerView) findViewById(R.id.recycleDSNhom_Tao);
         layoutManager = new LinearLayoutManager(this);
         recycleDSNhom_Tao.setLayoutManager(layoutManager);
-        txtSDT = findViewById(R.id.txtTimSoDienThoai);
+
     }
 
     protected void ShowDanhSach(){
@@ -168,4 +172,6 @@ public class TaoNhomActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }
