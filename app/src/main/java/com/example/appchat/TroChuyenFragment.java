@@ -112,7 +112,7 @@ public class TroChuyenFragment extends Fragment {
 
     //Call API Lấy Danh Sách Chat Của Người Dùng Hiện Tại
     private void GetAllConversations() {
-        DataClient dataClient = APIUtils.getDataDemo();
+        DataClient dataClient = APIUtils.getData();
         Call<ArrayList<ConversationMap>> call = dataClient.GetAllConversationFor_A_User(id_user);
         call.enqueue(new Callback<ArrayList<ConversationMap>>() {
             @Override

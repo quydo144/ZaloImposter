@@ -5,6 +5,24 @@ import java.io.Serializable;
 public class NhanTin implements Serializable {
     private String tinGui;
     private String tinNhan;
+    private String type_message;
+    private Boolean base64;
+
+    public Boolean getBase64() {
+        return base64;
+    }
+
+    public void setBase64(Boolean base64) {
+        this.base64 = base64;
+    }
+
+    public String getType_message() {
+        return type_message;
+    }
+
+    public void setType_message(String type_message) {
+        this.type_message = type_message;
+    }
 
     public String getTinGui() {
         return tinGui;
@@ -25,8 +43,10 @@ public class NhanTin implements Serializable {
     public NhanTin() {
     }
 
-    public NhanTin(String tinGui, String tinNhan) {
+    public NhanTin(String tinGui, String tinNhan, String type_message, Boolean base64) {
         this.tinGui = tinGui;
         this.tinNhan = tinNhan;
+        this.type_message = type_message;
+        this.base64 = base64;
     }
 }

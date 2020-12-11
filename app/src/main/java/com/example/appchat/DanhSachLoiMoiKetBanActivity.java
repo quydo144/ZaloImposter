@@ -172,6 +172,11 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                     public void onResponse(Call<Message> call, Response<Message> response) {
                         if (response.isSuccessful()){
                             if (response.body().getSuccess() == 1){
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                                 CheckRoom(position);
                                 JSONObject object = new JSONObject();
 
@@ -189,14 +194,22 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
                                 String ListUser = preferences.getString("ListUser", "");
                                 Gson gson = new Gson();
                                 Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
-                                ArrayList<NguoiDung> temp = gson.fromJson(ListUser, type);
-
-                                temp.add(lstUser.get(position));
-                                SharedPreferences.Editor editor = preferences.edit();
-                                String json = gson.toJson(temp);
-                                editor.putString("ListUser", json);
-                                editor.commit();
-
+                                if (ListUser.equals("")){
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    ArrayList<NguoiDung> temp = new ArrayList<>();
+                                    temp.add(lstUser.get(position));
+                                    String json = gson.toJson(temp);
+                                    editor.putString("ListUser", json);
+                                    editor.commit();
+                                }
+                                else {
+                                    ArrayList<NguoiDung> temp = gson.fromJson(ListUser, type);
+                                    temp.add(lstUser.get(position));
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    String json = gson.toJson(temp);
+                                    editor.putString("ListUser", json);
+                                    editor.commit();
+                                }
                                 lstUser.remove(lstUser.get(position));
                                 Toast.makeText(getApplicationContext(), "Xác nhận thành công", Toast.LENGTH_SHORT).show();
                                 ShowDanhSach();
@@ -214,7 +227,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
     }
 
     private void CreateTableChat(){
-        DataClient client = APIUtils.getDataDemo();
+        DataClient client = APIUtils.getData();
         Room room = new Room();
         room.setId_room(id_room);
         Call<Message> call = client.CreateTable(room);

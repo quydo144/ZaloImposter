@@ -6,11 +6,13 @@ import com.example.appchat.Models.DataMessage;
 import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Models.Room;
+import com.example.appchat.Models.UpLoadFile;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Map;
 
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.http.Body;
@@ -20,9 +22,11 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.HeaderMap;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 
 public interface DataClient {
@@ -86,4 +90,8 @@ public interface DataClient {
 
     @GET("/getAllRoom/id={id}")
     Call<ArrayList<ConversationMap>> GetAllConversationFor_A_User(@Path("id") int id);
+
+    @Multipart
+    @POST("/upLoadS3")
+    Call<UpLoadFile> UpLoadFile(@Part MultipartBody.Part image);
 }
