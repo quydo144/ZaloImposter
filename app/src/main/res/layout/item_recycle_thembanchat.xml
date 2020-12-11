@@ -41,8 +41,7 @@
             android:id="@+id/checkBox_themBanVaoNhom"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="center"
-            />
+            android:gravity="center" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

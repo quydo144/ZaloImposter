@@ -107,6 +107,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
         SendMessage();
         TuyChon();
         UploadImage();
+        UpLoadFile();
         //Lắng Nghe Người Dùng Nhập Dữ Liệu
         edtNhanTin_TextChanged();
 
@@ -183,6 +184,24 @@ public class NhanTinDonActivity extends AppCompatActivity {
         container_isTyping = findViewById(R.id.container_isTyping);
     }
 
+    private void UpLoadFile() {
+        btnGuiTinNhan_File.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ActivityCompat.checkSelfPermission(NhanTinDonActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(NhanTinDonActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 100);
+                    return;
+                }
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                intent.setType("*/*");
+                startActivityForResult(intent, 2);
+            }
+        });
+    }
+
     private void UploadImage() {
         btnGuiTinNhan_Hinh.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -253,10 +272,47 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 }
             }).start();
         }
+        if (requestCode == 2 && resultCode == RESULT_OK) {
+            ArrayList<Uri> listUri = new ArrayList<>();
+            if (null != data) { // checking empty selection
+                if (null != data.getClipData()) { // checking multiple selection or not
+                    for (int i = 0; i < data.getClipData().getItemCount(); i++) {
+                        Uri uri = data.getClipData().getItemAt(i).getUri();
+                        InputStream iStream = null;
+                        try {
+                            iStream = getContentResolver().openInputStream(uri);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            byte[] inputData = getBytes(iStream);
+                            Log.e("value", inputData.toString());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        listUri.add(uri);
+                    }
+                } else {
+                    Uri uri = data.getData();
+                    listUri.add(uri);
+                }
+            }
+        }
     }
 
-    private String getBase64String(Bitmap bitmap)
-    {
+    public byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
+    }
+
+    private String getBase64String(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] imageBytes = baos.toByteArray();
@@ -274,7 +330,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
             public void onResponse(Call<UpLoadFile> call, Response<UpLoadFile> response) {
                 if (response.isSuccessful()) {
                     UpLoadFile up = response.body();
-                    if (up.getSuccess() == 1){
+                    if (up.getSuccess() == 1) {
                         String base64 = getBase64String(bitmap);
                         listNhanTin.add(new NhanTin(base64, "", "image", true));
                         String linkS3 = up.getLocationArray().get(0);
@@ -456,10 +512,9 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     ArrayList<ItemMessage> data = response.body().getItems();
                     for (ItemMessage item : data) {
                         if (item.getUserSend() == id_user_1) {
-                            if (item.getTypeMessage().equals("text")){
+                            if (item.getTypeMessage().equals("text")) {
                                 listNhanTin.add(new NhanTin(item.getMessage(), "", "text", false));
-                            }
-                            else
+                            } else
                                 listNhanTin.add(new NhanTin(item.getMessage(), "", "image", false));
                         }
                         if (item.getUserReceive() == id_user_1) {
