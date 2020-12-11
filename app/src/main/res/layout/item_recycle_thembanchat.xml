@@ -36,11 +36,12 @@
             android:gravity="left|center"
             android:text="An"
             android:textSize="15sp"/>
+
         <CheckBox
             android:id="@+id/checkBox_themBanVaoNhom"
-            android:background="@drawable/circle_avatar_border"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:gravity="center"
             />
     </LinearLayout>
 
