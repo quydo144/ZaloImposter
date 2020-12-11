@@ -45,6 +45,7 @@ import com.example.appchat.Retrofit2.DataClient;
 import com.example.appchat.Socket.SocketChat;
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.ThreeBounce;
+import com.google.android.gms.common.util.IOUtils;
 
 
 import org.json.JSONException;
@@ -56,6 +57,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.sql.Time;
 import java.util.ArrayList;
@@ -184,7 +186,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
         container_isTyping = findViewById(R.id.container_isTyping);
     }
 
-    private void UpLoadFile(){
+    private void UpLoadFile() {
         btnGuiTinNhan_File.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -272,49 +274,39 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 }
             }).start();
         }
-        if (requestCode == 2 && resultCode == RESULT_OK){
+        if (requestCode == 2 && resultCode == RESULT_OK) {
             ArrayList<Uri> listUri = new ArrayList<>();
-            if(null != data) { // checking empty selection
-                if(null != data.getClipData()) { // checking multiple selection or not
-                    for(int i = 0; i < data.getClipData().getItemCount(); i++) {
+            if (null != data) { // checking empty selection
+                if (null != data.getClipData()) { // checking multiple selection or not
+                    for (int i = 0; i < data.getClipData().getItemCount(); i++) {
                         Uri uri = data.getClipData().getItemAt(i).getUri();
-                        InputStream iStream = null;
                         try {
-                            iStream = getContentResolver().openInputStream(uri);
+                            InputStream is = getContentResolver().openInputStream(uri);
+                            File file = new File(uri.getPath());
+                            copyToFile(is, file);
+                            Log.e("value", file.getName());
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
-                        }
-                        try {
-                            byte[] inputData = getBytes(iStream);
-                            Log.e("value", inputData.toString());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        listUri.add(uri);
                     }
                 } else {
                     Uri uri = data.getData();
-                    listUri.add(uri);
+
                 }
             }
 
         }
     }
 
-    public byte[] getBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
-
-        int len = 0;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
+    public void copyToFile(InputStream inputStream, File file) throws IOException {
+        try(OutputStream outputStream = new FileOutputStream(file)) {
+            FileUtils.copy(inputStream, outputStream);
         }
-        return byteBuffer.toByteArray();
     }
 
-    private String getBase64String(Bitmap bitmap)
-    {
+    private String getBase64String(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] imageBytes = baos.toByteArray();
@@ -332,7 +324,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
             public void onResponse(Call<UpLoadFile> call, Response<UpLoadFile> response) {
                 if (response.isSuccessful()) {
                     UpLoadFile up = response.body();
-                    if (up.getSuccess() == 1){
+                    if (up.getSuccess() == 1) {
                         String base64 = getBase64String(bitmap);
                         listNhanTin.add(new NhanTin(base64, "", "image", true));
                         String linkS3 = up.getLocationArray().get(0);
@@ -514,10 +506,9 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     ArrayList<ItemMessage> data = response.body().getItems();
                     for (ItemMessage item : data) {
                         if (item.getUserSend() == id_user_1) {
-                            if (item.getTypeMessage().equals("text")){
+                            if (item.getTypeMessage().equals("text")) {
                                 listNhanTin.add(new NhanTin(item.getMessage(), "", "text", false));
-                            }
-                            else
+                            } else
                                 listNhanTin.add(new NhanTin(item.getMessage(), "", "image", false));
                         }
                         if (item.getUserReceive() == id_user_1) {
