@@ -223,6 +223,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 try {
                     InputStream is = getContentResolver().openInputStream(imageUri);
                     Bitmap bitmap = BitmapFactory.decodeStream(is);
+
                     bitmaps.add(bitmap);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();

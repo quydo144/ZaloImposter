@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -17,7 +17,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".TaoNhomActivity"></activity>
+        <activity android:name=".ThemBanVaoNhomActivity"></activity>
+        <activity android:name=".TaoNhomActivity" />
         <activity android:name=".NhanTinNhomActivity" />
         <activity android:name=".TuyChonChatActivity" />
         <activity android:name=".NhanTinDonActivity" />
