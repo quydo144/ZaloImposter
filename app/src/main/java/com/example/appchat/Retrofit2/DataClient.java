@@ -4,8 +4,10 @@ import com.example.appchat.Models.BanBe;
 import com.example.appchat.Models.ConversationMap;
 import com.example.appchat.Models.DataMessage;
 import com.example.appchat.Models.Message;
+import com.example.appchat.Models.MessageNhom;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Models.Room;
+import com.example.appchat.Models.ThanhVien;
 import com.example.appchat.Models.UpLoadFile;
 
 import java.lang.reflect.Array;
@@ -94,4 +96,13 @@ public interface DataClient {
     @Multipart
     @POST("/upLoadS3")
     Call<UpLoadFile> UpLoadFile(@Part MultipartBody.Part image);
+
+    @POST("/createGroup")
+    Call<MessageNhom> CreateGroup (@Body ThanhVien thanhVien);
+
+    @POST("/addItemGroup")
+    Call<MessageNhom> AddItemGroup(@Body ThanhVien thanhVien);
+
+    @GET("/getListGroup={id}")
+    Call<MessageNhom> GetListGroup(@Path("id") String id);
 }
