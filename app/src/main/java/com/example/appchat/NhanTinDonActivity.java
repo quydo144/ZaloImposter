@@ -1,5 +1,6 @@
 package com.example.appchat;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -8,32 +9,36 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.DownloadManager;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.os.FileUtils;
+import android.provider.OpenableColumns;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.appchat.Adapter.ItemClickListener;
 import com.example.appchat.Adapter.NhanTinAdapter;
-import com.example.appchat.Models.BanBe;
 import com.example.appchat.Models.DataMessage;
 import com.example.appchat.Models.ItemMessage;
 import com.example.appchat.Models.Message;
@@ -45,7 +50,6 @@ import com.example.appchat.Retrofit2.DataClient;
 import com.example.appchat.Socket.SocketChat;
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.github.ybq.android.spinkit.style.ThreeBounce;
-import com.google.android.gms.common.util.IOUtils;
 
 
 import org.json.JSONException;
@@ -58,18 +62,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
-import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import io.socket.emitter.Emitter;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.Request;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -93,6 +91,8 @@ public class NhanTinDonActivity extends AppCompatActivity {
     String id_room = "";
     int id_user_2 = 0;
     int id_user_1 = 0;
+    String url = "";
+    String tenFile = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +101,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
         client_socket = new SocketChat();
 
         //Ẩn Thanh Trạng Thái
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         Init();
         Back_DanhBa();
@@ -110,6 +110,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
         TuyChon();
         UploadImage();
         UpLoadFile();
+        DoaloadFile();
         //Lắng Nghe Người Dùng Nhập Dữ Liệu
         edtNhanTin_TextChanged();
 
@@ -204,6 +205,60 @@ public class NhanTinDonActivity extends AppCompatActivity {
         });
     }
 
+    private void DoaloadFile(){
+        nhanTinAdapter.setItemClickListener(new ItemClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                url = "";
+                url = listNhanTin.get(position).getTinNhan();
+                if (url.equals("")){
+                    url = listNhanTin.get(position).getTinGui();
+                }
+                tenFile = listNhanTin.get(position).getUrlFile();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                            PackageManager.PERMISSION_DENIED){
+                        String[] permission = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                        requestPermissions(permission, 1000);
+                    }
+                    else {
+                        StartDowloading();
+                    }
+                }
+                else {
+                    StartDowloading();
+                }
+            }
+        });
+    }
+
+    private void StartDowloading(){
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+        request.setTitle(tenFile);
+        request.setDescription("Đang tải xuống ....");
+        request.allowScanningByMediaScanner();
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, tenFile);
+        DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        manager.enqueue(request);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case 1000:
+            {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    StartDowloading();
+                }
+                else {
+                    Toast.makeText(NhanTinDonActivity.this, "Quyền truy cập bị từ chối", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
     private void UploadImage() {
         btnGuiTinNhan_Hinh.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -259,7 +314,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 try {
-                                    UpFile(bitmap);
+                                    UpImage(bitmap);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -280,28 +335,98 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 if (null != data.getClipData()) { // checking multiple selection or not
                     for (int i = 0; i < data.getClipData().getItemCount(); i++) {
                         Uri uri = data.getClipData().getItemAt(i).getUri();
-                        try {
-                            InputStream is = getContentResolver().openInputStream(uri);
-                            File file = new File(uri.getPath());
-                            copyToFile(is, file);
-                            Log.e("value", file.getName());
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        listUri.add(uri);
                     }
                 } else {
                     Uri uri = data.getData();
-
+                    listUri.add(uri);
                 }
             }
-
+            for (Uri uri : listUri) {
+                try {
+                    InputStream is = getContentResolver().openInputStream(uri);
+                    String type = getContentResolver().getType(uri);
+                    Cursor returnCursor = getContentResolver().query(uri, null, null, null, null);
+                    returnCursor.moveToFirst();
+                    String namFile = returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    File file = new File(getCacheDir(), namFile);
+                    copyToFile(is, file);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        UpFile(file, type);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                            try {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
+    private void UpFile(File file, String type) throws IOException {
+        MultipartBody.Part body = buildFileBodyPart(file, type);
+        DataClient client = APIUtils.getData();
+        Call<UpLoadFile> call = client.UpLoadFile(body);
+        call.enqueue(new Callback<UpLoadFile>() {
+            @Override
+            public void onResponse(Call<UpLoadFile> call, Response<UpLoadFile> response) {
+                if (response.isSuccessful()) {
+                    UpLoadFile up = response.body();
+                    if (up.getSuccess() == 1) {
+                        listNhanTin.add(new NhanTin(up.getMessage(), "", "file", false, file.getName()));
+                        String linkS3 = up.getLocationArray().get(0);
+                        JSONObject object = new JSONObject();
+                        int userSend = id_user_1;
+                        int userReceive = id_user_2;
+                        try {
+                            object.put("userSend", userSend);
+                            object.put("userReceive", userReceive);
+                            object.put("message", linkS3);
+                            object.put("fileName", file.getName());
+                            object.put("type_message", "file");
+                            object.put("tableName", id_room);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        client_socket.getmClient().emit("CLIENT_GUI_TIN_NHAN", object);
+                        nhanTinAdapter.notifyDataSetChanged();
+                        recycleTinNhan.scrollToPosition(listNhanTin.size() - 1);
+                        edtNhanTin.setText("");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UpLoadFile> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private MultipartBody.Part buildFileBodyPart(File file, String type) throws IOException {
+        RequestBody reqFile = RequestBody.create(MediaType.parse(type), file);
+        return MultipartBody.Part.createFormData(file.toString(), file.getName(), reqFile);
+    }
+
     public void copyToFile(InputStream inputStream, File file) throws IOException {
-        try(OutputStream outputStream = new FileOutputStream(file)) {
+        try (OutputStream outputStream = new FileOutputStream(file)) {
             FileUtils.copy(inputStream, outputStream);
         }
     }
@@ -314,7 +439,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
         return base64String;
     }
 
-    private void UpFile(Bitmap bitmap) throws IOException {
+    private void UpImage(Bitmap bitmap) throws IOException {
 
         MultipartBody.Part body = buildImageBodyPart("photos", bitmap);
         DataClient client = APIUtils.getData();
@@ -326,7 +451,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     UpLoadFile up = response.body();
                     if (up.getSuccess() == 1) {
                         String base64 = getBase64String(bitmap);
-                        listNhanTin.add(new NhanTin(base64, "", "image", true));
+                        listNhanTin.add(new NhanTin(base64, "", "image", true, ""));
                         String linkS3 = up.getLocationArray().get(0);
                         JSONObject object = new JSONObject();
                         int userSend = id_user_1;
@@ -420,10 +545,11 @@ public class NhanTinDonActivity extends AppCompatActivity {
     }
 
     protected void SendMessage() {
+        //Send text
         btnGui_Chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listNhanTin.add(new NhanTin(edtNhanTin.getText().toString().trim(), "", "text", false));
+                listNhanTin.add(new NhanTin(edtNhanTin.getText().toString().trim(), "", "text", false, ""));
                 JSONObject object = new JSONObject();
                 int userSend = id_user_1;
                 int userReceive = id_user_2;
@@ -474,20 +600,23 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     JSONObject object = (JSONObject) args[0];
                     String tinNhan_Gui = "";
                     String type_message = "";
+                    String fileName = "";
                     try {
                         tinNhan_Gui = object.getString("message");
                         type_message = object.getString("type_message");
+                        fileName = object.getString("fileName");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                     if (type_message.equals(("text"))) {
-                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "text", false));
+                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "text", false, ""));
+                    } else if (type_message.equals(("file"))) {
+                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "file", false, fileName));
                     } else {
-                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "image", false));
+                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "image", false, ""));
                     }
                     nhanTinAdapter.notifyDataSetChanged();
                     recycleTinNhan.scrollToPosition(listNhanTin.size() - 1);
-
                     container_isTyping.setVisibility(View.GONE);
                 }
             });
@@ -507,15 +636,19 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     for (ItemMessage item : data) {
                         if (item.getUserSend() == id_user_1) {
                             if (item.getTypeMessage().equals("text")) {
-                                listNhanTin.add(new NhanTin(item.getMessage(), "", "text", false));
-                            } else
-                                listNhanTin.add(new NhanTin(item.getMessage(), "", "image", false));
+                                listNhanTin.add(new NhanTin(item.getMessage(), "", "text", false, ""));
+                            } else if (item.getTypeMessage().equals("image"))
+                                listNhanTin.add(new NhanTin(item.getMessage(), "", "image", false, ""));
+                            else
+                                listNhanTin.add(new NhanTin(item.getMessage(), "", "file", false, item.getFileName()));
                         }
                         if (item.getUserReceive() == id_user_1) {
-                            if (item.getTypeMessage().equals("text"))
-                                listNhanTin.add(new NhanTin("", item.getMessage(), "text", false));
+                            if (item.getTypeMessage().equals("text")) {
+                                listNhanTin.add(new NhanTin("", item.getMessage(), "text", false, ""));
+                            } else if (item.getTypeMessage().equals("image"))
+                                listNhanTin.add(new NhanTin("", item.getMessage(), "image", false, ""));
                             else
-                                listNhanTin.add(new NhanTin("", item.getMessage(), "image", false));
+                                listNhanTin.add(new NhanTin("", item.getMessage(), "file", false, item.getFileName()));
                         }
                     }
                     nhanTinAdapter.notifyDataSetChanged();

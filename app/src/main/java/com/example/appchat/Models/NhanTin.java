@@ -7,6 +7,15 @@ public class NhanTin implements Serializable {
     private String tinNhan;
     private String type_message;
     private Boolean base64;
+    private String urlFile;
+
+    public String getUrlFile() {
+        return urlFile;
+    }
+
+    public void setUrlFile(String urlFile) {
+        this.urlFile = urlFile;
+    }
 
     public Boolean getBase64() {
         return base64;
@@ -43,10 +52,11 @@ public class NhanTin implements Serializable {
     public NhanTin() {
     }
 
-    public NhanTin(String tinGui, String tinNhan, String type_message, Boolean base64) {
+    public NhanTin(String tinGui, String tinNhan, String type_message, Boolean base64, String urlFile) {
         this.tinGui = tinGui;
         this.tinNhan = tinNhan;
         this.type_message = type_message;
         this.base64 = base64;
+        this.urlFile = urlFile;
     }
 }

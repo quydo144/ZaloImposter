@@ -7,6 +7,29 @@ public class ItemMessage {
     @SerializedName("time")
     @Expose
     private Long time;
+    @SerializedName("userReceive")
+    @Expose
+    private Integer userReceive;
+    @SerializedName("message")
+    @Expose
+    private String message;
+    @SerializedName("type_message")
+    @Expose
+    private String typeMessage;
+    @SerializedName("userSend")
+    @Expose
+    private Integer userSend;
+    @SerializedName("fileName")
+    @Expose
+    private String fileName;
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 
     public Long getTime() {
         return time;
@@ -47,17 +70,4 @@ public class ItemMessage {
     public void setUserSend(Integer userSend) {
         this.userSend = userSend;
     }
-
-    @SerializedName("userReceive")
-    @Expose
-    private Integer userReceive;
-    @SerializedName("message")
-    @Expose
-    private String message;
-    @SerializedName("type_message")
-    @Expose
-    private String typeMessage;
-    @SerializedName("userSend")
-    @Expose
-    private Integer userSend;
 }
