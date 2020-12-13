@@ -2,6 +2,7 @@ package com.example.appchat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
@@ -350,7 +351,9 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     returnCursor.moveToFirst();
                     String namFile = returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     File file = new File(getCacheDir(), namFile);
-                    copyToFile(is, file);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        copyToFile(is, file);
+                    }
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -425,9 +428,12 @@ public class NhanTinDonActivity extends AppCompatActivity {
         return MultipartBody.Part.createFormData(file.toString(), file.getName(), reqFile);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     public void copyToFile(InputStream inputStream, File file) throws IOException {
         try (OutputStream outputStream = new FileOutputStream(file)) {
-            FileUtils.copy(inputStream, outputStream);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                FileUtils.copy(inputStream, outputStream);
+            }
         }
     }
 
