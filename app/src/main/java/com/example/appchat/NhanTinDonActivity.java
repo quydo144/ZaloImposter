@@ -351,8 +351,13 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     returnCursor.moveToFirst();
                     String namFile = returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     File file = new File(getCacheDir(), namFile);
+<<<<<<< HEAD
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         writeStreamToFile(is, file);
+=======
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        copyToFile(is, file);
+>>>>>>> 9c83b9d9793fd70885bbdaab25377bcf7165ddd1
                     }
                     new Thread(new Runnable() {
                         @Override
@@ -428,6 +433,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
         return MultipartBody.Part.createFormData(file.toString(), file.getName(), reqFile);
     }
 
+<<<<<<< HEAD
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void writeStreamToFile(InputStream input, File file) throws IOException {
         try {
@@ -450,6 +456,13 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 input.close();
             } catch (IOException e) {
                 e.printStackTrace();
+=======
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    public void copyToFile(InputStream inputStream, File file) throws IOException {
+        try (OutputStream outputStream = new FileOutputStream(file)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                FileUtils.copy(inputStream, outputStream);
+>>>>>>> 9c83b9d9793fd70885bbdaab25377bcf7165ddd1
             }
         }
     }
