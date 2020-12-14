@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.appchat.Adapter.Adapter_Nhom;
+import com.example.appchat.Models.BanBe;
+import com.example.appchat.Models.Message;
 import com.example.appchat.Models.MessageNhom;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Models.Nhom;
@@ -50,6 +53,7 @@ public class NhomFragment extends Fragment {
     Adapter_Nhom adapter;
     LinearLayoutManager layoutManager;
     SocketChat mSocket;
+    ProgressBar progressBarNhom;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,7 +61,7 @@ public class NhomFragment extends Fragment {
         init_Data();
         taoNhom_Click();
         GetListGroup();
-        mSocket.getmClient().on("SERVER_SEND_THONG_BAO_ADD_GROUP", ThongBaoTuServer);
+        SwipeRefreshLayout();
         return view;
     }
 
@@ -70,34 +74,8 @@ public class NhomFragment extends Fragment {
         layoutManager = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
         recycleDanhSachNhom.setLayoutManager(layoutManager);
         refresh_nhom = view.findViewById(R.id.refresh_nhom);
+        progressBarNhom = view.findViewById(R.id.progressBarNhom);
     }
-
-    private Emitter.Listener ThongBaoTuServer = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    JSONArray dsGroup = new JSONArray();
-                    JSONObject object = (JSONObject) args[0];
-                    int idUser = 0;
-                    try {
-                        idUser = object.getInt("idUser");
-                        dsGroup = object.getJSONArray("dataGroup");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    ArrayList<Nhom> temp = new ArrayList<>();
-                    Gson gson = new Gson();
-                    Type type = new TypeToken<ArrayList<Nhom>>() {}.getType();
-                    temp = gson.fromJson(String.valueOf(dsGroup), type);
-                    for (Nhom n : temp){
-                        Log.e("value", n.getTenNhom());
-                    }
-                }
-            });
-        }
-    };
 
     private void GetListGroup() {
         int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
@@ -125,6 +103,36 @@ public class NhomFragment extends Fragment {
         adapter = new Adapter_Nhom(getContext(), lstNhom);
         recycleDanhSachNhom.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+    }
+
+    protected void SwipeRefreshLayout() {
+        refresh_nhom.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                progressBarNhom.setVisibility(View.VISIBLE);
+                int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
+                DataClient client = APIUtils.getData();
+                Call<MessageNhom> call = client.GetListGroup(MaNguoiDung);
+                call.enqueue(new Callback<MessageNhom>() {
+                    @Override
+                    public void onResponse(Call<MessageNhom> call, Response<MessageNhom> response) {
+                        if (response.isSuccessful()) {
+                            if (response.body().getSuccess() == 1) {
+                                lstNhom = response.body().getDataGroup();
+                                progressBarNhom.setVisibility(View.GONE);
+                                ShowDanhSachNhom();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MessageNhom> call, Throwable t) {
+                        progressBarNhom.setVisibility(View.GONE);
+                    }
+                });
+                refresh_nhom.setRefreshing(false);
+            }
+        });
     }
 
     protected void taoNhom_Click() {

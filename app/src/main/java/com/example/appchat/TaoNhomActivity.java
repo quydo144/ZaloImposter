@@ -227,6 +227,10 @@ public class TaoNhomActivity extends AppCompatActivity {
     }
 
     private void AddThanhVienToGroup(ArrayList<NguoiDung> lst){
+        if (lst.size() == 0){
+            Toast.makeText(TaoNhomActivity.this, "Hãy chọn thành viên", Toast.LENGTH_LONG).show();
+            return;
+        }
         for (NguoiDung nd : lst){
             DataClient client = APIUtils.getData();
             ThanhVien tv = new ThanhVien();

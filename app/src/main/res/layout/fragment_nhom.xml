@@ -47,6 +47,20 @@
             app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <ProgressBar
+        android:id="@+id/progressBarNhom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/container_controller_nhom"/>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_nhom"
         app:layout_constraintTop_toBottomOf="@+id/container_controller_nhom"
@@ -55,6 +69,7 @@
         android:layout_width="match_parent"
         android:layout_height="600dp"
         tools:ignore="MissingConstraints">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycleDanhSachNhom"
             android:overScrollMode="never"
