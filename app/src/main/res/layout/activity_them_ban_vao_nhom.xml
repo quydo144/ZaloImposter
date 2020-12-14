@@ -23,10 +23,10 @@
             android:background="#00FFFFFF"
             android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"></ImageButton>
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
-            android:id="@+id/textViewTen"
+            android:id="@+id/textViewTenAdd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
@@ -60,6 +60,7 @@
         app:layout_constraintTop_toBottomOf="@+id/container_controll_tuy_chon_chat_don">
 
         <EditText
+            android:id="@+id/sreach_Sdt_add_group"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginStart="12dp"

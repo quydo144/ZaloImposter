@@ -26,17 +26,15 @@ public class NhanTinAdapter extends RecyclerView.Adapter<NhanTinAdapter.ViewHold
 
     Context context;
     ArrayList<NhanTin> NhanTins;
-    String tenNguoiGui;
     ItemClickListener mListener;
 
     public void setItemClickListener(ItemClickListener mListener) {
         this.mListener = mListener;
     }
 
-    public NhanTinAdapter(Context context, ArrayList<NhanTin> nhanTins, String ten) {
+    public NhanTinAdapter(Context context, ArrayList<NhanTin> nhanTins) {
         this.context = context;
         NhanTins = nhanTins;
-        this.tenNguoiGui = ten;
     }
 
     @NonNull
@@ -82,8 +80,9 @@ public class NhanTinAdapter extends RecyclerView.Adapter<NhanTinAdapter.ViewHold
 
         if (NhanTins.get(position).getTinGui() == "") {
             holder.container_nguoi_nhan.setVisibility(View.VISIBLE);
-            holder.tvTenNhan.setText(tenNguoiGui);
+            holder.tvTenNhan.setText(NhanTins.get(position).getTenNhan());
             holder.tvGui.setVisibility(View.GONE);
+            holder.btnFile_TaiGui.setVisibility(View.GONE);
             if (NhanTins.get(position).getType_message().equals("image")) {
                 holder.tvNhan.setVisibility(View.GONE);
                 holder.img_Nhan.setVisibility(View.VISIBLE);

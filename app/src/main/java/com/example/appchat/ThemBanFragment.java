@@ -24,7 +24,10 @@ import com.example.appchat.Models.Message;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +42,7 @@ public class ThemBanFragment extends Fragment {
     final String Regex_CheckSoDienThoai = "^0[1-9][0-9]{8}$";
     final int EDIT_CODE_INTENT = 9999;
     EditText txtSDT;
-    SharedPreferences preferences;
+    SharedPreferences preferences, preferencesDanhBa;
     ProgressBar prgbr_Loading;
     MyAdapter adapter;
     LinearLayoutManager layoutManager;
@@ -73,6 +76,7 @@ public class ThemBanFragment extends Fragment {
     }
 
     protected void Init_Data() {
+        preferencesDanhBa = getContext().getSharedPreferences("data_danh_ba", MODE_PRIVATE);
         progressBar_TimBanBe = (ProgressBar) view.findViewById(R.id.progressBar_TimBanBe);
         preferences = getActivity().getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         token = preferences.getString("Token_DangNhap", "");
@@ -92,33 +96,43 @@ public class ThemBanFragment extends Fragment {
     }
 
     protected void GetDanhSachBan(){
-        progressBar_TimBanBe.setVisibility(View.VISIBLE);
-        int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
-        DataClient client = APIUtils.getData();
-        BanBe banBe = new BanBe();
-        banBe.setMaNguoiDung_Mot(MaNguoiDung);
-        Call<Message> call = client.GetListFriend(banBe);
-        call.enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-                if (response.isSuccessful()) {
-                    progressBar_TimBanBe.setVisibility(View.GONE);
-                    if (response.body().getSuccess() == 1) {
-                        for (NguoiDung user : response.body().getDanhsach()){
-                            if (user.isStatus()){
-                                lstUser.add(user);
+        String json = preferencesDanhBa.getString("ListUser", "");
+        if (json.equals("")){
+            progressBar_TimBanBe.setVisibility(View.VISIBLE);
+            int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
+            DataClient client = APIUtils.getData();
+            BanBe banBe = new BanBe();
+            banBe.setMaNguoiDung_Mot(MaNguoiDung);
+            Call<Message> call = client.GetListFriend(banBe);
+            call.enqueue(new Callback<Message>() {
+                @Override
+                public void onResponse(Call<Message> call, Response<Message> response) {
+                    if (response.isSuccessful()) {
+                        progressBar_TimBanBe.setVisibility(View.GONE);
+                        if (response.body().getSuccess() == 1) {
+                            for (NguoiDung user : response.body().getDanhsach()){
+                                if (user.isStatus()){
+                                    lstUser.add(user);
+                                }
                             }
+                            ShowDanhSach();
                         }
-                        ShowDanhSach();
                     }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<Message> call, Throwable t) {
-                progressBar_TimBanBe.setVisibility(View.GONE);
-            }
-        });
+                @Override
+                public void onFailure(Call<Message> call, Throwable t) {
+                    progressBar_TimBanBe.setVisibility(View.GONE);
+                }
+            });
+        }
+        else {
+
+            Gson gson = new Gson();
+            Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
+            lstUser = gson.fromJson(String.valueOf(json), type);
+            ShowDanhSach();
+        }
     }
 
     protected void TextChange(){

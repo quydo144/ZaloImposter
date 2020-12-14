@@ -40,7 +40,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
-
             android:id="@+id/btnXac_Nhan_Tao_Nhom"
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
@@ -50,7 +49,7 @@
             app:layout_constraintStart_toEndOf="@+id/txtDatTenNhom"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/yes"
-            tools:visibility="visible" />
+            android:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -70,7 +69,7 @@
             android:background="#00FFFFFF"
             android:src="@drawable/ic_baseline_keyboard_arrow_left_24"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"></ImageButton>
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/textView4"
@@ -90,7 +89,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="4dp"
-            android:text="Đã chọn :0"
+            android:text="Đã chọn : 0"
             android:textColor="#fff"
             android:textSize="10dp"
             app:layout_constraintStart_toEndOf="@+id/btnBack_FragmentNhom"

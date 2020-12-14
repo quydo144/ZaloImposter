@@ -1,85 +1,77 @@
 package com.example.appchat.Adapter;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.appchat.Models.NguoiDung;
+import com.example.appchat.Models.Nhom;
+import com.example.appchat.NhanTinNhomActivity;
 import com.example.appchat.R;
 
 import java.util.ArrayList;
 
 public class Adapter_Nhom extends RecyclerView.Adapter<Adapter_Nhom.MyViewHolderNhom> {
-    MyViewHolderNhom holderNhom;
+
+    ArrayList<Nhom> lstNhom;
     Context context;
-    ArrayList<NguoiDung> itemNguoiDung;
-    ArrayList<NguoiDung> checkedNguoiDung= new ArrayList<>();
-    SharedPreferences preferences;
-    boolean statusBanBe;
-    TextView nameUser_chatNhom;
-    OnMultiClickCheckBoxListener onListener;
 
-    public void setOnMultiClickCheckBoxListener(OnMultiClickCheckBoxListener onListener){
-        this.onListener= onListener;
-    }
-
-    public Adapter_Nhom (Context context, ArrayList<NguoiDung> lstNguoiDung, Boolean statusBanBe){
-        preferences= context.getSharedPreferences("data_dang_nhap", Context.MODE_PRIVATE);
-
-        this.context= context;
-        this.itemNguoiDung= lstNguoiDung;
-        this.statusBanBe= statusBanBe;
+    public Adapter_Nhom(Context context, ArrayList<Nhom> lst){
+        this.context = context;
+        this.lstNhom = lst;
     }
 
     @NonNull
     @Override
-    public MyViewHolderNhom onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView= LayoutInflater.from(context).inflate(R.layout.item_recycle_thembanchat, parent, false);
-        holderNhom = new MyViewHolderNhom(itemView, onListener);
-        return holderNhom;
+    public Adapter_Nhom.MyViewHolderNhom onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_group, parent, false);
+        return new MyViewHolderNhom(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolderNhom holder, int position) {
-        this.setOnMultiClickCheckBoxListener(new OnMultiClickCheckBoxListener() {
+    public void onBindViewHolder(@NonNull Adapter_Nhom.MyViewHolderNhom holder, int position) {
+        holder.setItemClickListener(new ItemClickListener() {
             @Override
-            public void onMultiClickCheckBox(View view, int position) {
-                CheckBox chk= (CheckBox) view;
-
-                if (chk.isChecked()){
-                    checkedNguoiDung.add(itemNguoiDung.get(position));
-                } else if (!chk.isChecked()){
-                    checkedNguoiDung.remove(itemNguoiDung.get(position));
-                }
+            public void onClick(View view, int position) {
+                Intent intent = new Intent(view.getContext(), NhanTinNhomActivity.class);
+                String id_nhom = lstNhom.get(position).getMaNhom();
+                String ten_nhom = lstNhom.get(position).getTenNhom();
+                intent.putExtra("ten_nhom", ten_nhom);
+                intent.putExtra("id_nhom", id_nhom);
+                view.getContext().startActivity(intent);
             }
         });
-        this.nameUser_chatNhom.setText(itemNguoiDung.get(position).getHoTen());
+        holder.nameNhom.setText(lstNhom.get(position).getTenNhom());
     }
 
     @Override
     public int getItemCount() {
-        return itemNguoiDung.size();
+        return lstNhom.size();
     }
 
-    public class MyViewHolderNhom extends RecyclerView.ViewHolder implements View.OnClickListener{
-        CheckBox checkBoxThemBan;
+    public class MyViewHolderNhom extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private ItemClickListener itemClickListener;
+        TextView nameNhom;
 
-        public MyViewHolderNhom(@NonNull View itemView, OnMultiClickCheckBoxListener onListener) {
+        public MyViewHolderNhom(@NonNull View itemView) {
             super(itemView);
-            this.checkBoxThemBan= itemView.findViewById(R.id.checkBox_themBanVaoNhom);
-            nameUser_chatNhom= itemView.findViewById(R.id.nameUser_chatNhom);
+            itemView.setOnClickListener(this);
+            nameNhom = itemView.findViewById(R.id.nameNhom);
+        }
+
+        public void setItemClickListener(ItemClickListener itemClickListener) {
+            this.itemClickListener = itemClickListener;
         }
 
         @Override
         public void onClick(View v) {
-            onListener.onMultiClickCheckBox(v, getAdapterPosition());
+            itemClickListener.onClick(v, getAdapterPosition());
         }
     }
 }

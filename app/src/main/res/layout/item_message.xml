@@ -78,6 +78,10 @@
             android:background="#fff"
             android:visibility="gone"
             android:text="file"
+            android:fontFamily="@font/rubik_medium"
+            android:textAlignment="textStart"
+            android:textColor="#000"
+            android:textSize="18sp"
             android:textAllCaps="false"/>
     </LinearLayout>
 
@@ -115,10 +119,18 @@
         android:id="@+id/btnFile_TaiGui"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:fontFamily="@font/rubik_medium"
+        android:textAlignment="textStart"
+        android:textColor="#fff"
+        android:textSize="18sp"
         android:background="@drawable/text_nguoi_nhan"
         android:text="file"
         android:layout_gravity="right"
         android:textAllCaps="false"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        tools:ignore="RtlCompat"/>
 
 </LinearLayout>

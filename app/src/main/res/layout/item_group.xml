@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_marginTop="5dp"
     android:layout_height="70dp"
-    android:id="@+id/container_recylerview_item_user_nhom"
+    android:id="@+id/container_recylerview_item_group"
     android:layout_marginBottom="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible"
         android:gravity="left"
         android:layout_marginStart="20dp"
-        android:id="@+id/view_foreground_nhom"
+        android:id="@+id/view_foreground"
         android:background="@android:color/white"
         android:orientation="horizontal"
         android:layout_gravity="center_vertical">
 
         <ImageView
-            android:id="@+id/item_avatar_nhom"
+            android:id="@+id/item_avatar"
             android:layout_width="70dp"
             android:padding="4dp"
             android:background="@drawable/circle_avatar_border"
@@ -27,8 +25,8 @@
         </ImageView>
 
         <TextView
-            android:id="@+id/nameUser_chatNhom"
-            android:layout_width="200dp"
+            android:id="@+id/nameNhom"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="20dp"
@@ -37,11 +35,7 @@
             android:gravity="left|center"
             android:text="An"
             android:textSize="15sp"/>
-        <CheckBox
-            android:id="@+id/checkBox_themBanVaoNhom"
-            android:background="@drawable/circle_avatar_border"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

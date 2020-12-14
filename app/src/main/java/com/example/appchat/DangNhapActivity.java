@@ -133,6 +133,7 @@ public class DangNhapActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = preferences.edit();
                             int mnd = nguoi_dung_infor.getMaNguoiDung();
                             editor.putInt("MaNguoiDung", mnd);
+                            editor.putString("TenNguoiDung", nguoi_dung_infor.getHoTen());
                             editor.apply();
 
                             Intent intent = new Intent(DangNhapActivity.this, TroChuyenActivity.class);

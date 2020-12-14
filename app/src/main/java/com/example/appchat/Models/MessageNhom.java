@@ -18,6 +18,9 @@ public class MessageNhom {
     @SerializedName("data")
     @Expose
     private ArrayList<ThanhVien> data = null;
+    @SerializedName("dataGroup")
+    @Expose
+    private ArrayList<Nhom> dataGroup = null;
 
     public Integer getSuccess() {
         return success;
@@ -49,5 +52,13 @@ public class MessageNhom {
 
     public void setData(ArrayList<ThanhVien> data) {
         this.data = data;
+    }
+
+    public ArrayList<Nhom> getDataGroup() {
+        return dataGroup;
+    }
+
+    public void setDataGroup(ArrayList<Nhom> dataGroup) {
+        this.dataGroup = dataGroup;
     }
 }

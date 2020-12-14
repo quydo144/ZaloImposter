@@ -22,6 +22,17 @@ public class ItemMessage {
     @SerializedName("fileName")
     @Expose
     private String fileName;
+    @SerializedName("nameUser")
+    @Expose
+    private String nameUser;
+
+    public String getNameUser() {
+        return nameUser;
+    }
+
+    public void setNameUser(String nameUser) {
+        this.nameUser = nameUser;
+    }
 
     public String getFileName() {
         return fileName;

@@ -104,5 +104,11 @@ public interface DataClient {
     Call<MessageNhom> AddItemGroup(@Body ThanhVien thanhVien);
 
     @GET("/getListGroup={id}")
-    Call<MessageNhom> GetListGroup(@Path("id") String id);
+    Call<MessageNhom> GetListGroup(@Path("id") int id);
+
+    @GET("/checkTruongNhom={id}")
+    Call<MessageNhom> CheckTruongNhom(@Path("id") String id);
+
+    @GET("/getListThanhVien={id}")
+    Call<MessageNhom> GetListThanhVien(@Path("id") String id);
 }

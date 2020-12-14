@@ -2,6 +2,7 @@ package com.example.appchat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
@@ -164,7 +165,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(NhanTinDonActivity.this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         layoutManager.setStackFromEnd(true);
-        nhanTinAdapter = new NhanTinAdapter(NhanTinDonActivity.this, listNhanTin, ten);
+        nhanTinAdapter = new NhanTinAdapter(NhanTinDonActivity.this, listNhanTin);
         recycleTinNhan.setAdapter(nhanTinAdapter);
         recycleTinNhan.setLayoutManager(layoutManager);
         edtNhanTin = (EditText) findViewById(R.id.edtTinNhan_Don);
@@ -350,7 +351,9 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     returnCursor.moveToFirst();
                     String namFile = returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     File file = new File(getCacheDir(), namFile);
-                    copyToFile(is, file);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        writeStreamToFile(is, file);
+                    }
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -390,7 +393,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     UpLoadFile up = response.body();
                     if (up.getSuccess() == 1) {
-                        listNhanTin.add(new NhanTin(up.getMessage(), "", "file", false, file.getName()));
+                        listNhanTin.add(new NhanTin(up.getMessage(), "", "file", false, file.getName(), ten));
                         String linkS3 = up.getLocationArray().get(0);
                         JSONObject object = new JSONObject();
                         int userSend = id_user_1;
@@ -425,9 +428,29 @@ public class NhanTinDonActivity extends AppCompatActivity {
         return MultipartBody.Part.createFormData(file.toString(), file.getName(), reqFile);
     }
 
-    public void copyToFile(InputStream inputStream, File file) throws IOException {
-        try (OutputStream outputStream = new FileOutputStream(file)) {
-            FileUtils.copy(inputStream, outputStream);
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void writeStreamToFile(InputStream input, File file) throws IOException {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                try (OutputStream output = new FileOutputStream(file)) {
+                    byte[] buffer = new byte[4 * 1024]; // or other buffer size
+                    int read;
+                    while ((read = input.read(buffer)) != -1) {
+                        output.write(buffer, 0, read);
+                    }
+                    output.flush();
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                input.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -440,7 +463,6 @@ public class NhanTinDonActivity extends AppCompatActivity {
     }
 
     private void UpImage(Bitmap bitmap) throws IOException {
-
         MultipartBody.Part body = buildImageBodyPart("photos", bitmap);
         DataClient client = APIUtils.getData();
         Call<UpLoadFile> call = client.UpLoadFile(body);
@@ -451,7 +473,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     UpLoadFile up = response.body();
                     if (up.getSuccess() == 1) {
                         String base64 = getBase64String(bitmap);
-                        listNhanTin.add(new NhanTin(base64, "", "image", true, ""));
+                        listNhanTin.add(new NhanTin(base64, "", "image", true, "", ten));
                         String linkS3 = up.getLocationArray().get(0);
                         JSONObject object = new JSONObject();
                         int userSend = id_user_1;
@@ -461,6 +483,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
                             object.put("userReceive", userReceive);
                             object.put("message", linkS3);
                             object.put("type_message", "image");
+                            object.put("fileName", "");
                             object.put("tableName", id_room);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -511,7 +534,6 @@ public class NhanTinDonActivity extends AppCompatActivity {
     }
 
     private void CheckRoom() {
-
         id_user_2 = getIntent().getIntExtra("id_user", 0);
         id_user_1 = preferences.getInt("MaNguoiDung", 0);
         Room room = new Room();
@@ -549,7 +571,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
         btnGui_Chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listNhanTin.add(new NhanTin(edtNhanTin.getText().toString().trim(), "", "text", false, ""));
+                listNhanTin.add(new NhanTin(edtNhanTin.getText().toString().trim(), "", "text", false, "", ten));
                 JSONObject object = new JSONObject();
                 int userSend = id_user_1;
                 int userReceive = id_user_2;
@@ -559,6 +581,7 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     object.put("message", edtNhanTin.getText().toString().trim());
                     object.put("type_message", "text");
                     object.put("tableName", id_room);
+                    object.put("fileName", "");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -609,11 +632,11 @@ public class NhanTinDonActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     if (type_message.equals(("text"))) {
-                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "text", false, ""));
+                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "text", false, "", ten));
                     } else if (type_message.equals(("file"))) {
-                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "file", false, fileName));
+                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "file", false, fileName, ten));
                     } else {
-                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "image", false, ""));
+                        listNhanTin.add(new NhanTin("", tinNhan_Gui, "image", false, "", ten));
                     }
                     nhanTinAdapter.notifyDataSetChanged();
                     recycleTinNhan.scrollToPosition(listNhanTin.size() - 1);
@@ -636,19 +659,19 @@ public class NhanTinDonActivity extends AppCompatActivity {
                     for (ItemMessage item : data) {
                         if (item.getUserSend() == id_user_1) {
                             if (item.getTypeMessage().equals("text")) {
-                                listNhanTin.add(new NhanTin(item.getMessage(), "", "text", false, ""));
+                                listNhanTin.add(new NhanTin(item.getMessage(), "", "text", false, "", ten));
                             } else if (item.getTypeMessage().equals("image"))
-                                listNhanTin.add(new NhanTin(item.getMessage(), "", "image", false, ""));
+                                listNhanTin.add(new NhanTin(item.getMessage(), "", "image", false, "", ten));
                             else
-                                listNhanTin.add(new NhanTin(item.getMessage(), "", "file", false, item.getFileName()));
+                                listNhanTin.add(new NhanTin(item.getMessage(), "", "file", false, item.getFileName(), ten));
                         }
                         if (item.getUserReceive() == id_user_1) {
                             if (item.getTypeMessage().equals("text")) {
-                                listNhanTin.add(new NhanTin("", item.getMessage(), "text", false, ""));
+                                listNhanTin.add(new NhanTin("", item.getMessage(), "text", false, "", ten));
                             } else if (item.getTypeMessage().equals("image"))
-                                listNhanTin.add(new NhanTin("", item.getMessage(), "image", false, ""));
+                                listNhanTin.add(new NhanTin("", item.getMessage(), "image", false, "", ten));
                             else
-                                listNhanTin.add(new NhanTin("", item.getMessage(), "file", false, item.getFileName()));
+                                listNhanTin.add(new NhanTin("", item.getMessage(), "file", false, item.getFileName(), ten));
                         }
                     }
                     nhanTinAdapter.notifyDataSetChanged();

@@ -4,25 +4,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.appchat.Adapter.Adapter_Nhom;
+import com.example.appchat.Adapter.Adapter_Create_Nhom;
+import com.example.appchat.Adapter.OnMultiClickCheckBoxListener;
 import com.example.appchat.Models.BanBe;
 import com.example.appchat.Models.Message;
 import com.example.appchat.Models.MessageNhom;
 import com.example.appchat.Models.NguoiDung;
+import com.example.appchat.Models.Room;
 import com.example.appchat.Models.ThanhVien;
 import com.example.appchat.Retrofit2.APIUtils;
 import com.example.appchat.Retrofit2.DataClient;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -34,17 +39,16 @@ public class TaoNhomActivity extends AppCompatActivity {
     ImageButton btnBackNhom, btnDongYTaoNhom;
     TextView tenNhom;
     String idGroup = "";
-    SharedPreferences preferences;
+    SharedPreferences preferences, preferencesDanhBa;
     EditText txtSDT;
     String SDT;
-    Adapter_Nhom adapter_nhom;
-    View view;
+    Adapter_Create_Nhom adapter_Create_nhom;
     LinearLayoutManager layoutManager;
-    NguoiDung nguoi_dung_infor;
     ArrayList<NguoiDung> lstUser = new ArrayList<>();
+    ArrayList<NguoiDung> lstCheck = new ArrayList<>();
     BanBe ban_be_info;
-    Integer status = -1;
     RecyclerView recycleDSNhom_Tao;
+    TextView tvCap_Nhat_Chon_Ban_Be_Vao_Nhom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +57,26 @@ public class TaoNhomActivity extends AppCompatActivity {
 
         ban_be_info = new BanBe();
         lstUser.clear();
+        lstCheck.clear();
         init_Data();
-        //TextChange();
         GetDanhSachBan();
         backFragmentNhom_Click();
+        CheckMultiItem();
+        CreateGroup();
+    }
+
+    protected void init_Data() {
+        preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
+        preferencesDanhBa = getSharedPreferences("data_danh_ba", MODE_PRIVATE);
+        txtSDT = findViewById(R.id.txtTimSoDienThoai);
+        btnBackNhom = (ImageButton) findViewById(R.id.btnBack_FragmentNhom);
+        btnDongYTaoNhom = (ImageButton) findViewById(R.id.btnXac_Nhan_Tao_Nhom);
+        tenNhom = (TextView) findViewById(R.id.txtDatTenNhom);
+        SDT = preferences.getString("SoDienThoai", "");
+        recycleDSNhom_Tao = (RecyclerView) findViewById(R.id.recycleDSNhom_Tao);
+        layoutManager = new LinearLayoutManager(this);
+        recycleDSNhom_Tao.setLayoutManager(layoutManager);
+        tvCap_Nhat_Chon_Ban_Be_Vao_Nhom = (TextView)findViewById(R.id.tvCap_Nhat_Chon_Ban_Be_Vao_Nhom);
     }
 
     protected void backFragmentNhom_Click() {
@@ -68,46 +88,75 @@ public class TaoNhomActivity extends AppCompatActivity {
         });
     }
 
-    protected void init_Data() {
-        preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
-
-        txtSDT = findViewById(R.id.txtTimSoDienThoai);
-        btnBackNhom = (ImageButton) findViewById(R.id.btnBack_FragmentNhom);
-        btnDongYTaoNhom = (ImageButton) findViewById(R.id.btnXac_Nhan_Tao_Nhom);
-        tenNhom = (TextView) findViewById(R.id.txtDatTenNhom);
-        SDT = preferences.getString("SoDienThoai", "");
-
-        recycleDSNhom_Tao = (RecyclerView) findViewById(R.id.recycleDSNhom_Tao);
-        layoutManager = new LinearLayoutManager(this);
-        recycleDSNhom_Tao.setLayoutManager(layoutManager);
-
+    protected void CheckMultiItem(){
+        adapter_Create_nhom.setOnMultiClickCheckBoxListener(new OnMultiClickCheckBoxListener() {
+            @Override
+            public void onMultiClickCheckBox(View view, int position) {
+                CheckBox ck = view.findViewById(R.id.checkBox_themBanVaoNhom);
+                if (!ck.isChecked()){
+                    lstCheck.add(lstUser.get(position));
+                }
+                else {
+                    lstCheck.remove(lstUser.get(position));
+                }
+                tvCap_Nhat_Chon_Ban_Be_Vao_Nhom.setText("Đã chọn : " + lstCheck.size());
+            }
+        });
     }
 
     protected void ShowDanhSach(){
-        adapter_nhom = new Adapter_Nhom(this, lstUser, false);
-
-        recycleDSNhom_Tao.setAdapter(adapter_nhom);
-        adapter_nhom.notifyDataSetChanged();
+        adapter_Create_nhom = new Adapter_Create_Nhom(TaoNhomActivity.this, lstUser, false);
+        recycleDSNhom_Tao.setAdapter(adapter_Create_nhom);
+        adapter_Create_nhom.notifyDataSetChanged();
     }
 
     protected void GetDanhSachBan(){
-        int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
+        String json = preferencesDanhBa.getString("ListUser", "");
+        if (json.equals("")){
+            int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
+            DataClient client = APIUtils.getData();
+            BanBe banBe = new BanBe();
+            banBe.setMaNguoiDung_Mot(MaNguoiDung);
+            Call<Message> call = client.GetListFriend(banBe);
+            call.enqueue(new Callback<Message>() {
+                @Override
+                public void onResponse(Call<Message> call, Response<Message> response) {
+                    if (response.isSuccessful()) {
+                        if (response.body().getSuccess() == 1) {
+                            for (NguoiDung user : response.body().getDanhsach()){
+                                if (user.isStatus()){
+                                    lstUser.add(user);
+                                }
+                            }
+                            ShowDanhSach();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Message> call, Throwable t) {
+
+                }
+            });
+        }
+        else {
+            Gson gson = new Gson();
+            Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
+            lstUser = gson.fromJson(String.valueOf(json), type);
+            ShowDanhSach();
+        }
+    }
+
+    private void CreateTableChat(String id){
         DataClient client = APIUtils.getData();
-        BanBe banBe = new BanBe();
-        banBe.setMaNguoiDung_Mot(MaNguoiDung);
-        Call<Message> call = client.GetListFriend(banBe);
+        Room room = new Room();
+        room.setId_room(id);
+        Call<Message> call = client.CreateTable(room);
         call.enqueue(new Callback<Message>() {
             @Override
             public void onResponse(Call<Message> call, Response<Message> response) {
-                if (response.isSuccessful()) {
-                    if (response.body().getSuccess() == 1) {
-                        for (NguoiDung user : response.body().getDanhsach()){
-                            if (user.isStatus()){
-                                lstUser.add(user);
-                            }
-                        }
-                        ShowDanhSach();
-                    }
+                if(response.isSuccessful()){
+
                 }
             }
 
@@ -118,60 +167,88 @@ public class TaoNhomActivity extends AppCompatActivity {
         });
     }
 
-    protected void TextChange() {
-        txtSDT.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                ArrayList<NguoiDung> lstUserTemp = new ArrayList<>();
-                for (NguoiDung user : lstUser) {
-                    if (user.getSoDienThoai().contains(s)) {
-                        lstUserTemp.add(user);
-                    }
-                }
-                adapter_nhom = new Adapter_Nhom(view.getContext(), lstUserTemp, false);
-                recycleDSNhom_Tao.setAdapter(adapter_nhom);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-    }
-
     private void CreateGroup(){
         btnDongYTaoNhom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DataClient client = APIUtils.getDataLocal();
-                ThanhVien tv = new ThanhVien();
-                tv.setTenNhom(tenNhom.getText().toString());
-                int maNguoiDung = preferences.getInt("MaNguoiDung", 0);
-                tv.setTruongNhom(maNguoiDung);
-                Call<MessageNhom> call = client.CreateGroup(tv);
-                call.enqueue(new Callback<MessageNhom>() {
-                    @Override
-                    public void onResponse(Call<MessageNhom> call, Response<MessageNhom> response) {
-                        if (response.isSuccessful())
-                            if (response.body().getSuccess() == 1){
-                                idGroup = response.body().getMaNhom();
-                                Toast.makeText(TaoNhomActivity.this, "Tạo nhóm thành công", Toast.LENGTH_SHORT).show();
-                            }
+                if (lstCheck.size() == 1){
+                    NguoiDung nd = lstCheck.get(0);
+                    Intent intent = new Intent(TaoNhomActivity.this, NhanTinDonActivity.class);
+                    String sdt = nd.getSoDienThoai();
+                    String ten = nd.getHoTen();
+                    int id_user = nd.getMaNguoiDung();
+                    intent.putExtra("sdt",sdt);
+                    intent.putExtra("ten",ten);
+                    intent.putExtra("id_user", id_user);
+                    startActivity(intent);
+                }
+                else {
+                    DataClient client = APIUtils.getData();
+                    ThanhVien tv = new ThanhVien();
+                    if (tenNhom.getText().toString().equals("")){
+                        Toast.makeText(TaoNhomActivity.this, "Hãy nhập tên nhóm để tạo nhóm", Toast.LENGTH_LONG).show();
+                        tenNhom.setText("");
+                        tenNhom.requestFocus();
+                        return;
                     }
+                    tv.setTenNhom(tenNhom.getText().toString().trim());
+                    int maNguoiDung = preferences.getInt("MaNguoiDung", 0);
+                    tv.setTruongNhom(maNguoiDung);
+                    Call<MessageNhom> call = client.CreateGroup(tv);
+                    call.enqueue(new Callback<MessageNhom>() {
+                        @Override
+                        public void onResponse(Call<MessageNhom> call, Response<MessageNhom> response) {
+                            if (response.isSuccessful())
+                                if (response.body().getSuccess() == 1){
+                                    idGroup = response.body().getMaNhom();
+                                    if (idGroup.equals("")){
+                                        Toast.makeText(TaoNhomActivity.this, "Nhóm chưa được tạo", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                    CreateTableChat(response.body().getMaNhom());
+                                    AddThanhVienToGroup(lstCheck);
+                                    Intent intent = new Intent(TaoNhomActivity.this, NhanTinNhomActivity.class);
+                                    String id_nhom = idGroup;
+                                    String ten_nhom = tenNhom.getText().toString().trim();
+                                    intent.putExtra("ten_nhom", ten_nhom);
+                                    intent.putExtra("id_nhom", id_nhom);
+                                    startActivity(intent);
+                                }
+                        }
 
-                    @Override
-                    public void onFailure(Call<MessageNhom> call, Throwable t) {
+                        @Override
+                        public void onFailure(Call<MessageNhom> call, Throwable t) {
 
-                    }
-                });
+                        }
+                    });
+                }
             }
         });
     }
 
+    private void AddThanhVienToGroup(ArrayList<NguoiDung> lst){
+        for (NguoiDung nd : lst){
+            DataClient client = APIUtils.getData();
+            ThanhVien tv = new ThanhVien();
+            tv.setMaNhom(idGroup);
+            tv.setMaThanhVien(Integer.toString(nd.getMaNguoiDung()));
+            Call<MessageNhom> call = client.AddItemGroup(tv);
+            call.enqueue(new Callback<MessageNhom>() {
+                @Override
+                public void onResponse(Call<MessageNhom> call, Response<MessageNhom> response) {
+                    if (response.isSuccessful()){
+                        if (response.body().getSuccess() == 0){
+                            Toast.makeText(TaoNhomActivity.this, "Đang có lỗi thêm thành viên", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                }
 
+                @Override
+                public void onFailure(Call<MessageNhom> call, Throwable t) {
+
+                }
+            });
+        }
+    }
 }

@@ -155,7 +155,6 @@ public class TroChuyenFragment extends Fragment {
             }
             ArrayList<ConversationMap> list = new ArrayList<>();
             for (ConversationMap map : temp){
-                //Chats.get(position).getSender() != null
                 if (map.getSender() != null){
                     list.add(map);
                 }
