@@ -13,7 +13,6 @@
             android:id="@+id/rv_Conversation"
             android:clickable="true"
             android:layout_width="match_parent"
-            android:clickable="true"
             android:layout_height="match_parent" />
     </RelativeLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
