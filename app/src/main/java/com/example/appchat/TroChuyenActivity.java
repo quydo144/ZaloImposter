@@ -210,12 +210,20 @@ public class TroChuyenActivity extends AppCompatActivity {
                             case R.id.imenu_AddBanBe:
                                 TimBanBe();
                                 break;
+                            case R.id.imenu_GoiY:
+                                DanhSachGoiY();
+                                break;
                         }
                         return false;
                     }
                 });
             }
         });
+    }
+
+    protected void DanhSachGoiY(){
+        Intent intent = new Intent(TroChuyenActivity.this, DanhSachGoiYKetBan.class);
+        startActivity(intent);
     }
 
     protected void btnSettings_Profile_Click() {
@@ -308,7 +316,6 @@ public class TroChuyenActivity extends AppCompatActivity {
     }
 
     protected void TimBanBe() {
-
         if (!selectedFragment.getClass().getSimpleName().equals("ThemBanFragment")) {
             selectedFragment = new ThemBanFragment();
             name = selectedFragment.getClass().getSimpleName();

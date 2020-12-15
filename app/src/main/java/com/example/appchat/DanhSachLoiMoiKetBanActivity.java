@@ -156,7 +156,7 @@ public class DanhSachLoiMoiKetBanActivity extends AppCompatActivity {
     }
 
     protected void ShowDanhSach() {
-        adapter = new MyAdapter(this, lstUser, true);
+        adapter = new MyAdapter(this, lstUser, true, 0);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
         adapter.setOnItemClickListener(new OnItemClickListener() {

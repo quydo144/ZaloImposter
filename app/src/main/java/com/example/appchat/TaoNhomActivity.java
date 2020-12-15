@@ -171,7 +171,11 @@ public class TaoNhomActivity extends AppCompatActivity {
         btnDongYTaoNhom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (lstCheck.size() == 1){
+                if (lstCheck.size() == 0){
+                    Toast.makeText(TaoNhomActivity.this, "Hãy chọn thành viên", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                else if (lstCheck.size() == 1){
                     NguoiDung nd = lstCheck.get(0);
                     Intent intent = new Intent(TaoNhomActivity.this, NhanTinDonActivity.class);
                     String sdt = nd.getSoDienThoai();

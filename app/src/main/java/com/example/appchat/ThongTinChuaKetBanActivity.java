@@ -132,11 +132,20 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<Message> call, Response<Message> response) {
                         if (response.isSuccessful()){
-                            if (response.body().getSuccess() == 2){
+                            if (response.body().getSuccess() == 1){
                                 //Gửi Thông Báo Kết Bạn
                                 SharedPreferences preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
                                 String SoDienThoai = preferences.getString("SoDienThoai", "");
-                                GuiThongBaoKetBan(SoDienThoai);
+                                String tenNguoiDung = preferences.getString("TenNguoiDung", "");
+                                JSONObject object = new JSONObject();
+                                try {
+                                    object.put("NguoiNhanLoiMoi", nguoi_dung.getSoDienThoai());
+                                    object.put("NguoiGuiLoiMoi", SoDienThoai);
+                                    object.put("NguoiGuiLoiMoi_HoTen", tenNguoiDung);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                mClient.getmClient().emit("DaGuiLoiMoiKetBan", object);
 
                                 //********************************************************************************************
 
@@ -161,41 +170,6 @@ public class ThongTinChuaKetBanActivity extends AppCompatActivity {
     }
 
     private void GuiThongBaoKetBan(String SDT) {
-        String temp = preferences.getString("Token_DangNhap", "");
-        Map<String, String> map = new HashMap<>();
-        map.put("Authorization", ("Bearer " + temp).trim());
 
-        DataClient client = APIUtils.getData();
-        Call<Message> call = client.GetThongTinNguoiDung_bySDT(SDT, map);
-        call.enqueue(new Callback<Message>() {
-            @Override
-            public void onResponse(Call<Message> call, Response<Message> response) {
-                if (response.isSuccessful()) {
-                    if (response.body().getSuccess() == 1) {
-                        NguoiDung nguoi_dung_infor = response.body().getData();
-
-                        //Gửi Thông Báo Kết Bạn
-                        SharedPreferences preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
-
-                        JSONObject object = new JSONObject();
-
-                        try {
-                            object.put("NguoiNhanLoiMoi", nguoi_dung.getSoDienThoai());
-                            object.put("NguoiGuiLoiMoi", SDT);
-                            object.put("NguoiGuiLoiMoi_HoTen", nguoi_dung_infor.getHoTen());
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        mClient.getmClient().emit("DaGuiLoiMoiKetBan", object);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Message> call, Throwable t) {
-
-            }
-        });
     }
 }

@@ -90,7 +90,7 @@ public class ThemBanFragment extends Fragment {
     }
 
     protected void ShowDanhSach(){
-        adapter = new MyAdapter(view.getContext(), lstUser, false);
+        adapter = new MyAdapter(view.getContext(), lstUser, false, 0);
         adapter.notifyDataSetChanged();
         recycleDanhSachBanBe_Tim.setAdapter(adapter);
     }
@@ -150,7 +150,7 @@ public class ThemBanFragment extends Fragment {
                         lstUserTemp.add(user);
                     }
                 }
-                adapter = new MyAdapter(view.getContext(), lstUserTemp, false);
+                adapter = new MyAdapter(view.getContext(), lstUserTemp, false, 0);
                 recycleDanhSachBanBe_Tim.setAdapter(adapter);
             }
 

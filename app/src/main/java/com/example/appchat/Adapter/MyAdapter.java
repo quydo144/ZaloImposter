@@ -3,15 +3,14 @@ package com.example.appchat.Adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.appchat.DanhBaFragment;
 import com.example.appchat.Models.NguoiDung;
 import com.example.appchat.NhanTinDonActivity;
 import com.example.appchat.R;
@@ -25,16 +24,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     boolean statusBanBe;
     SharedPreferences preferences;
     OnItemClickListener mListener;
+    int loiMoi = -1;
 
     public void setOnItemClickListener(OnItemClickListener mListener) {
         this.mListener = mListener;
     }
 
-    public MyAdapter (Context context, ArrayList<NguoiDung> lstNguoDung, Boolean statusBanBe){
+    public MyAdapter (Context context, ArrayList<NguoiDung> lstNguoDung, Boolean statusBanBe, int loiMoi){
         preferences = context.getSharedPreferences("data_dang_nhap", Context.MODE_PRIVATE);
         this.context = context;
         this.itemNguoiDung = lstNguoDung;
         this.statusBanBe = statusBanBe;
+        this.loiMoi = loiMoi;
     }
 
     @NonNull
@@ -64,7 +65,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
                 }
             }
         });
-
+        if (loiMoi == 1){
+            holder.btnChapNhanAdd.setText("Kết bạn");
+            holder.btnChapNhanAdd.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        }
         holder.nameUser.setText(itemNguoiDung.get(position).getHoTen());
         if (statusBanBe){
             holder.btnChapNhanAdd.setVisibility(View.VISIBLE);

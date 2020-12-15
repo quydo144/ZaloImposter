@@ -94,7 +94,7 @@ public class DanhBaFragment extends Fragment {
             }.getType();
             lstUser = gson.fromJson(ListUser, type);
 
-            adapter = new MyAdapter(myActivity, lstUser, false);
+            adapter = new MyAdapter(myActivity, lstUser, false, 0);
             recyclerView.setAdapter(adapter);
         }
 
@@ -315,7 +315,7 @@ public class DanhBaFragment extends Fragment {
                                                 }
 
                                                 mClient.getmClient().emit("XoaDanhBa", object);
-                                                Toast.makeText(view.getContext(), "Xoá thành công", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(view.getContext(), "Xoá thành công", Toast.LENGTH_LONG).show();
 
                                                 lstUser.remove(pos);
                                                 adapter.notifyDataSetChanged();
@@ -358,7 +358,7 @@ public class DanhBaFragment extends Fragment {
         editor.putString("ListUser", json);
         editor.commit();
 
-        adapter = new MyAdapter(view.getContext(), lstUser, false);
+        adapter = new MyAdapter(view.getContext(), lstUser, false, 0);
         recyclerView.setAdapter(adapter);
     }
 
@@ -415,7 +415,7 @@ public class DanhBaFragment extends Fragment {
             public void onResponse(Call<Message> call, Response<Message> response) {
                 if (response.isSuccessful()) {
                     if (response.body().getSuccess() == 1) {
-                        Toast.makeText(myActivity, "Đang Đồng Bộ...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(myActivity, "Đang Đồng Bộ...", Toast.LENGTH_LONG).show();
                         NguoiDung nguoi_dung_infor = response.body().getData();
 
                         lstUser.remove(nguoi_dung_infor);

@@ -1,8 +1,11 @@
 package com.example.appchat.Retrofit2;
 
+import android.widget.BaseAdapter;
+
 import com.example.appchat.Models.BanBe;
 import com.example.appchat.Models.ConversationMap;
 import com.example.appchat.Models.DataMessage;
+import com.example.appchat.Models.GoiY;
 import com.example.appchat.Models.Message;
 import com.example.appchat.Models.MessageNhom;
 import com.example.appchat.Models.NguoiDung;
@@ -72,6 +75,9 @@ public interface DataClient {
     @POST("/getlistrequestfriend")
     Call<Message> GetListRequestFriend(@Body BanBe banBe);
 
+    @POST("/getListSendRequestFriend")
+    Call<Message> GetListSendRequestFriend(@Body BanBe banBe);
+
     @POST("/addRoom")
     Call<Message> AddRoomChat(@Body Room room);
 
@@ -111,4 +117,7 @@ public interface DataClient {
 
     @GET("/getListThanhVien={id}")
     Call<MessageNhom> GetListThanhVien(@Path("id") String id);
+
+    @POST("/getListGoiY")
+    Call<Message> GetListGoiY(@Body GoiY goiY);
 }
