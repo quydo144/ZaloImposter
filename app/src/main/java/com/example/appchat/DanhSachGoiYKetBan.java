@@ -55,6 +55,7 @@ public class DanhSachGoiYKetBan extends AppCompatActivity {
     ArrayList<String> lstContactLocal = new ArrayList<>();
     ArrayList<NguoiDung> lstUser = new ArrayList<>();
     ArrayList<NguoiDung> lstLoiMoi = new ArrayList<>();
+    ArrayList<NguoiDung> lstDuocMoi = new ArrayList<>();
     ArrayList<NguoiDung> lstBanBe = new ArrayList<>();
     ProgressBar progressBarGoiY;
     SharedPreferences preferences;
@@ -69,6 +70,7 @@ public class DanhSachGoiYKetBan extends AppCompatActivity {
         showContacts();
         ShowDanhSach();
         GetDanhSachLoiMoi();
+        GetDanhSachDuocMoiLoiMoi();
         GetDanhSachBanBe();
         GetDanhSachGoiY();
         Back();
@@ -203,7 +205,7 @@ public class DanhSachGoiYKetBan extends AppCompatActivity {
                     if (response.body().getSuccess() == 1) {
                         for (NguoiDung user : response.body().getDanhsach()) {
                             if (user.isStatus()) {
-                                if (!lstLoiMoi.contains(user) && !lstBanBe.contains(user))
+                                if (!lstLoiMoi.contains(user) && !lstBanBe.contains(user) && !lstDuocMoi.contains(user))
                                     lstUser.add(user);
                             }
                         }
@@ -236,6 +238,33 @@ public class DanhSachGoiYKetBan extends AppCompatActivity {
                         for (NguoiDung user : response.body().getDanhsach()) {
                             if (user.isStatus()) {
                                 lstLoiMoi.add(user);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Message> call, Throwable t) {
+
+            }
+        });
+    }
+
+    protected void GetDanhSachDuocMoiLoiMoi() {
+        int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
+        DataClient client = APIUtils.getData();
+        BanBe banBe = new BanBe();
+        banBe.setMaNguoiDung_Mot(MaNguoiDung);
+        Call<Message> call = client.GetListRequestFriend(banBe);
+        call.enqueue(new Callback<Message>() {
+            @Override
+            public void onResponse(Call<Message> call, Response<Message> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess() == 1) {
+                        for (NguoiDung user : response.body().getDanhsach()) {
+                            if (user.isStatus()) {
+                                lstDuocMoi.add(user);
                             }
                         }
                     }
