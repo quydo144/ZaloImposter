@@ -71,7 +71,7 @@ public class ThemBanVaoNhomActivity extends AppCompatActivity {
         btnBack_Khung_Chat_Nhom = (ImageButton) findViewById(R.id.btnBack_Khung_Chat_Nhom);
         textViewTenAdd = (TextView) findViewById(R.id.textViewTenAdd);
         btnLuu_ThemBanVaoChatNhom = (Button) findViewById(R.id.btnLuu_ThemBanVaoChatNhom);
-        sreach_Sdt_add_group = (EditText) findViewById(R.id.sreach_Sdt_add_group);
+
         recycleView = (RecyclerView) findViewById(R.id.recycleView_DanhSachBanBe_ThemNhom_Activity);
         layoutManager = new LinearLayoutManager(this);
         recycleView.setLayoutManager(layoutManager);

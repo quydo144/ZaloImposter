@@ -78,7 +78,7 @@ public class NhanTinNhomActivity extends AppCompatActivity {
     SharedPreferences preferences;
     TextView textViewTenNhom, tvNguoiNhanTyping;
     EditText edtTinNhan_Nhom;
-    ImageButton btn_Gui_Tin_Nhan_Nhom, btn_Gui_Hinh_Nhom, btn_Gui_Link_Nhom, btn_add_friend_group;
+    ImageButton btn_Gui_Tin_Nhan_Nhom, btn_Gui_Hinh_Nhom, btn_Gui_Link_Nhom, btn_add_friend_group, btnBack_ChatGroup;
     RecyclerView recycleTinNhan;
     SocketChat client_socket;
     ArrayList<NhanTin> listNhanTin = new ArrayList<>();
@@ -103,6 +103,15 @@ public class NhanTinNhomActivity extends AppCompatActivity {
         UpLoadFile();
         DoaloadFile();
         ListenSocketFromServer();
+        Back_Click();
+    }
+    private void Back_Click() {
+        btnBack_ChatGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     private void Init(){
@@ -118,6 +127,7 @@ public class NhanTinNhomActivity extends AppCompatActivity {
         btn_Gui_Tin_Nhan_Nhom = (ImageButton) findViewById(R.id.btn_Gui_Tin_Nhan_Nhom);
         btn_Gui_Hinh_Nhom = (ImageButton) findViewById(R.id.btn_Gui_Hinh_Nhom);
         btn_Gui_Link_Nhom = (ImageButton) findViewById(R.id.btn_Gui_Link_Nhom);
+        btnBack_ChatGroup= findViewById(R.id.btnBack_Fragment_Tro_Chuyen_Nhom);
         recycleTinNhan = (RecyclerView) findViewById(R.id.recycleTinNhanChatNhom);
         LinearLayoutManager layoutManager = new LinearLayoutManager(NhanTinNhomActivity.this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);

@@ -65,10 +65,12 @@ public class TaoNhomActivity extends AppCompatActivity {
         CreateGroup();
     }
 
+
+
     protected void init_Data() {
         preferences = getSharedPreferences("data_dang_nhap", MODE_PRIVATE);
         preferencesDanhBa = getSharedPreferences("data_danh_ba", MODE_PRIVATE);
-        txtSDT = findViewById(R.id.txtTimSoDienThoai);
+
         btnBackNhom = (ImageButton) findViewById(R.id.btnBack_FragmentNhom);
         btnDongYTaoNhom = (ImageButton) findViewById(R.id.btnXac_Nhan_Tao_Nhom);
         tenNhom = (TextView) findViewById(R.id.txtDatTenNhom);
