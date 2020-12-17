@@ -66,7 +66,7 @@ public class ThemBanVaoNhomActivity extends AppCompatActivity {
         AddItemGroup();
     }
 
-    private void Init(){
+    private void Init() {
         mSocket = new SocketChat();
         btnBack_Khung_Chat_Nhom = (ImageButton) findViewById(R.id.btnBack_Khung_Chat_Nhom);
         textViewTenAdd = (TextView) findViewById(R.id.textViewTenAdd);
@@ -82,7 +82,7 @@ public class ThemBanVaoNhomActivity extends AppCompatActivity {
         preferencesDanhBa = getSharedPreferences("data_danh_ba", MODE_PRIVATE);
     }
 
-    private void Back_Activity(){
+    private void Back_Activity() {
         btnBack_Khung_Chat_Nhom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,19 +91,19 @@ public class ThemBanVaoNhomActivity extends AppCompatActivity {
         });
     }
 
-    private void GetDanhSachThanhVien(){
+    private void GetDanhSachThanhVien() {
         DataClient client = APIUtils.getData();
         Call<MessageNhom> call = client.GetListThanhVien(id_nhom);
         call.enqueue(new Callback<MessageNhom>() {
             @Override
             public void onResponse(Call<MessageNhom> call, Response<MessageNhom> response) {
-                if (response.isSuccessful()){
-                    if (response.body().getSuccess() == 1){
+                if (response.isSuccessful()) {
+                    if (response.body().getSuccess() == 1) {
                         ArrayList<ThanhVien> lst = response.body().getData();
                         GetDanhSachBan();
-                        for (ThanhVien tv : lst){
-                            for (NguoiDung nd : lstUser){
-                                if (tv.getMaThanhVien().equals(nd.getMaNguoiDung() + "")){
+                        for (ThanhVien tv : lst) {
+                            for (NguoiDung nd : lstUser) {
+                                if (tv.getMaThanhVien().equals(nd.getMaNguoiDung() + "")) {
                                     lstUser.remove(nd);
                                     break;
                                 }
@@ -121,18 +121,17 @@ public class ThemBanVaoNhomActivity extends AppCompatActivity {
         });
     }
 
-    private void AddItemGroup(){
+    private void AddItemGroup() {
         btnLuu_ThemBanVaoChatNhom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (lstCheck.size() == 0){
+                if (lstCheck.size() == 0) {
                     Toast.makeText(ThemBanVaoNhomActivity.this, "Không tồn tại bạn để thêm", Toast.LENGTH_LONG).show();
                     return;
-                }
-                else {
+                } else {
                     int count = lstCheck.size();
                     int i = 0;
-                    for (NguoiDung nd : lstCheck){
+                    for (NguoiDung nd : lstCheck) {
                         DataClient client = APIUtils.getData();
                         ThanhVien tv = new ThanhVien();
                         tv.setMaNhom(id_nhom);
@@ -141,12 +140,11 @@ public class ThemBanVaoNhomActivity extends AppCompatActivity {
                         call.enqueue(new Callback<MessageNhom>() {
                             @Override
                             public void onResponse(Call<MessageNhom> call, Response<MessageNhom> response) {
-                                if (response.isSuccessful()){
-                                    if (response.body().getSuccess() == 0){
+                                if (response.isSuccessful()) {
+                                    if (response.body().getSuccess() == 0) {
                                         Toast.makeText(ThemBanVaoNhomActivity.this, "Đang có lỗi thêm thành viên", Toast.LENGTH_LONG).show();
                                         return;
-                                    }
-                                    else {
+                                    } else {
                                         JSONObject object = new JSONObject();
                                         try {
                                             object.put("idUser", nd.getMaNguoiDung());
@@ -165,7 +163,7 @@ public class ThemBanVaoNhomActivity extends AppCompatActivity {
                         });
                         i++;
                     }
-                    if (i == count){
+                    if (i == count) {
                         Toast.makeText(ThemBanVaoNhomActivity.this, "Thêm vào nhóm thành công", Toast.LENGTH_LONG).show();
                         finish();
                     }
@@ -174,10 +172,10 @@ public class ThemBanVaoNhomActivity extends AppCompatActivity {
         });
     }
 
-    private void GetDanhSachBan(){
+    private void GetDanhSachBan() {
         String json = preferencesDanhBa.getString("ListUser", "");
-        if (json.equals("")){
-            int MaNguoiDung = preferences.getInt("MaNguoiDung" , 0);
+        if (json.equals("")) {
+            int MaNguoiDung = preferences.getInt("MaNguoiDung", 0);
             DataClient client = APIUtils.getData();
             BanBe banBe = new BanBe();
             banBe.setMaNguoiDung_Mot(MaNguoiDung);
@@ -187,8 +185,8 @@ public class ThemBanVaoNhomActivity extends AppCompatActivity {
                 public void onResponse(Call<Message> call, Response<Message> response) {
                     if (response.isSuccessful()) {
                         if (response.body().getSuccess() == 1) {
-                            for (NguoiDung user : response.body().getDanhsach()){
-                                if (user.isStatus()){
+                            for (NguoiDung user : response.body().getDanhsach()) {
+                                if (user.isStatus()) {
                                     lstUser.add(user);
                                 }
                             }
@@ -201,30 +199,37 @@ public class ThemBanVaoNhomActivity extends AppCompatActivity {
 
                 }
             });
-        }
-        else {
+        } else {
             Gson gson = new Gson();
-            Type type = new TypeToken<ArrayList<NguoiDung>>() {}.getType();
+            Type type = new TypeToken<ArrayList<NguoiDung>>() {
+            }.getType();
             lstUser = gson.fromJson(String.valueOf(json), type);
         }
     }
 
-    protected void ShowDanhSach(){
+    protected void ShowDanhSach() {
         adapter = new Adapter_Create_Nhom(getApplicationContext(), lstUser, false);
         CheckMultiItem();
         recycleView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
 
-    private void CheckMultiItem(){
+    private void CheckMultiItem() {
         adapter.setOnMultiClickCheckBoxListener(new OnMultiClickCheckBoxListener() {
             @Override
-            public void onMultiClickCheckBox(View view, int position) {
-                CheckBox ck = view.findViewById(R.id.checkBox_themBanVaoNhom);
-                if (!ck.isChecked()){
+            public void onItemClicked(boolean isChecked, int position) {
+                if (isChecked) {
                     lstCheck.add(lstUser.get(position));
+                } else {
+                    lstCheck.remove(lstUser.get(position));
                 }
-                else {
+            }
+
+            @Override
+            public void onItemCheckBoxChecked(boolean isChecked, int position) {
+                if (isChecked) {
+                    lstCheck.add(lstUser.get(position));
+                } else {
                     lstCheck.remove(lstUser.get(position));
                 }
             }

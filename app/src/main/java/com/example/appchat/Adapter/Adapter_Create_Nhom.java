@@ -20,23 +20,23 @@ public class Adapter_Create_Nhom extends RecyclerView.Adapter<Adapter_Create_Nho
     Context context;
     ArrayList<NguoiDung> itemNguoiDung;
     boolean statusBanBe;
-    OnMultiClickCheckBoxListener onListener;
+    private static OnMultiClickCheckBoxListener mListener;
 
-    public void setOnMultiClickCheckBoxListener(OnMultiClickCheckBoxListener onListener){
-        this.onListener = onListener;
+    public void setOnMultiClickCheckBoxListener(OnMultiClickCheckBoxListener onListener) {
+        this.mListener = onListener;
     }
 
-    public Adapter_Create_Nhom(Context context, ArrayList<NguoiDung> lstNguoiDung, Boolean statusBanBe){
-        this.context= context;
-        this.itemNguoiDung= lstNguoiDung;
-        this.statusBanBe= statusBanBe;
+    public Adapter_Create_Nhom(Context context, ArrayList<NguoiDung> lstNguoiDung, Boolean statusBanBe) {
+        this.context = context;
+        this.itemNguoiDung = lstNguoiDung;
+        this.statusBanBe = statusBanBe;
     }
 
     @NonNull
     @Override
     public MyViewHolderNhom onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView= LayoutInflater.from(context).inflate(R.layout.item_recycle_thembanchat, parent, false);
-        return new MyViewHolderNhom(itemView, onListener);
+        View itemView = LayoutInflater.from(context).inflate(R.layout.item_recycle_thembanchat, parent, false);
+        return new MyViewHolderNhom(itemView);
     }
 
     @Override
@@ -49,23 +49,34 @@ public class Adapter_Create_Nhom extends RecyclerView.Adapter<Adapter_Create_Nho
         return itemNguoiDung.size();
     }
 
-    public class MyViewHolderNhom extends RecyclerView.ViewHolder{
+    public class MyViewHolderNhom extends RecyclerView.ViewHolder {
 
         CheckBox checkBoxThemBan;
         TextView nameUser_chatNhom;
         ImageView item_avatar_nhom;
 
-        public MyViewHolderNhom(@NonNull View itemView, OnMultiClickCheckBoxListener onMultiClickCheckBoxListener) {
+        public MyViewHolderNhom(@NonNull View itemView) {
             super(itemView);
-            checkBoxThemBan= itemView.findViewById(R.id.checkBox_themBanVaoNhom);
-            nameUser_chatNhom= itemView.findViewById(R.id.nameUser_chatNhom);
+            checkBoxThemBan = itemView.findViewById(R.id.checkBox_themBanVaoNhom);
+            nameUser_chatNhom = itemView.findViewById(R.id.nameUser_chatNhom);
             item_avatar_nhom = itemView.findViewById(R.id.item_avatar_nhom);
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    int vt = getAdapterPosition();
-                    onMultiClickCheckBoxListener.onMultiClickCheckBox(v, vt);
-                    checkBoxThemBan.performClick();
+                public void onClick(View view) {
+                    if (checkBoxThemBan.isChecked()) {
+                        checkBoxThemBan.setChecked(false);
+                    } else {
+                        checkBoxThemBan.setChecked(true);
+                    }
+                    mListener.onItemClicked(checkBoxThemBan.isChecked(), getLayoutPosition());
+                }
+            });
+
+            checkBoxThemBan.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener.onItemCheckBoxChecked(((CheckBox) view).isChecked(), getLayoutPosition());
                 }
             });
         }
